@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroTrack — Dashboard</title>
+  <meta name="description" content="Your personal AI mental health companion. Track moods, chat with AI, and get wellness tips." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .hero { background: linear-gradient(135deg, #e8f0fe 0%, #f8f9fa 60%); border: 1px solid #c5d9f8; border-radius: var(--radius-lg); padding: 32px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .hero-text h1 { font-size: 1.8rem; }
+    .hero-text p  { font-size: .95rem; margin-top: 6px; max-width: 480px; }
+    .hero-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .hero-art { font-size: 5rem; flex-shrink: 0; }
+    .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .quick-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; flex: 1; min-width: 180px; text-decoration: none; color: var(--text); display: flex; align-items: center; gap: 14px; transition: var(--transition); box-shadow: var(--shadow-sm); }
+    .quick-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); transform: translateY(-2px); }
+    .quick-icon { font-size: 1.6rem; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .quick-icon.blue   { background: var(--primary-lt); }
+    .quick-icon.green  { background: var(--success-lt); }
+    .quick-icon.yellow { background: var(--warning-lt); }
+    .quick-icon.gray   { background: var(--surface-2); }
+    .quick-info h3 { font-size: .95rem; }
+    .quick-info p  { font-size: .8rem; margin-top: 2px; }
+    .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+    .status-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .status-row:last-child { border-bottom: none; }
+    .mood-stat { text-align: center; padding: 12px; }
+    .mood-stat .emoji { font-size: 1.8rem; }
+    #summary-skeleton { display: flex; flex-direction: column; gap: 10px; }
+    .skel { height: 16px; border-radius: 4px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skel.short { width: 40%; }
+    .user-setup { background: var(--warning-lt); border: 1px solid #fdd663; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; font-size: .875rem; color: #594300; display: none; }
+    .user-setup.show { display: flex; align-items: center; gap: 12px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="logo-icon">🧠</div>
+    <span>NeuroTrack</span>
+  </a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html" class="active nav-icon-wrap"><span class="nav-icon">🏠</span> Dashboard</a></li>
+    <li><a href="chat.html" class="nav-icon-wrap"><span class="nav-icon">💬</span> Chat</a></li>
+    <li><a href="mood.html" class="nav-icon-wrap"><span class="nav-icon">📊</span> Mood</a></li>
+    <li><a href="suggestions.html" class="nav-icon-wrap"><span class="nav-icon">💡</span> Tips</a></li>
+    <li><a href="status.html" class="nav-icon-wrap"><span class="nav-icon">❤️</span> Status</a></li>
+  </ul>
+</nav>
+
+<div class="user-bar">
+  <span>👤 User ID:</span>
+  <input type="text" id="userIdInput" placeholder="Enter your user ID…" maxlength="40" />
+  <button class="btn btn-sm btn-primary" id="saveUserId">Save</button>
+  <span id="userIdStatus"></span>
+</div>
+
+<main class="main">
+
+  <div class="user-setup" id="userSetup">
+    ⚠️ Please enter a User ID above to load your personalised dashboard.
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Hi there 👋</h1>
+      <p>Welcome to NeuroTrack — your calm, supportive AI companion for mental wellbeing. How are you feeling today?</p>
+      <div class="hero-actions">
+        <a href="chat.html" class="btn btn-primary">💬 Start Chatting</a>
+        <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
+      </div>
+    </div>
+    <div class="hero-art">🧘</div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <a href="chat.html" class="quick-card">
+      <div class="quick-icon blue">💬</div>
+      <div class="quick-info">
+        <h3>AI Chat</h3>
+        <p>Talk to your support companion</p>
+      </div>
+    </a>
+    <a href="mood.html" class="quick-card">
+      <div class="quick-icon green">📊</div>
+      <div class="quick-info">
+        <h3>Mood Tracker</h3>
+        <p>Log &amp; visualise your moods</p>
+      </div>
+    </a>
+    <a href="suggestions.html" class="quick-card">
+      <div class="quick-icon yellow">💡</div>
+      <div class="quick-info">
+        <h3>Wellness Tips</h3>
+        <p>CBT-inspired daily suggestions</p>
+      </div>
+    </a>
+    <a href="status.html" class="quick-card">
+      <div class="quick-icon gray">❤️</div>
+      <div class="quick-info">
+        <h3>System Status</h3>
+        <p>API health &amp; uptime</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Stats + Summary -->
+  <div class="grid-2" style="margin-bottom:20px">
+
+    <!-- Mood Summary -->
+    <div class="card">
+      <div class="card-title">Your Mood Summary</div>
+      <div id="summaryContent">
+        <div id="summary-skeleton">
+          <div class="skel" style="width:60%"></div>
+          <div class="skel short"></div>
+          <div class="skel" style="width:80%"></div>
+          <div class="skel short"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mood Breakdown chart -->
+    <div class="card">
+      <div class="card-title">Mood Breakdown</div>
+      <div id="breakdownChart">
+        <div class="empty-state" id="breakdownEmpty">
+          <div class="empty-icon">📊</div>
+          <p>No data yet. Log your first mood!</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- API Status -->
+  <div class="card">
+    <div class="card-title">API Status</div>
+    <div class="status-row">
+      <span style="font-size:.875rem;font-weight:500">Backend Service</span>
+      <span id="apiPill" class="pill pill-gray"><span class="dot"></span> Checking…</span>
+    </div>
+  </div>
+
+</main>
+
+<footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
+<div id="toast-container"></div>
+
+<script type="module">
+import { ping, getMoodSummary, getUserId, setUserId, showToast, moodEmoji, MOOD_META } from './js/api.js';
+
+// ── Hamburger ────────────────────────────────────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+// ── User ID ──────────────────────────────────────────────────────────────────
+const userInput  = document.getElementById('userIdInput');
+const userStatus = document.getElementById('userIdStatus');
+const userSetup  = document.getElementById('userSetup');
+
+function initUser() {
+  const uid = getUserId();
+  userInput.value = uid;
+  if (!uid) { userSetup.classList.add('show'); }
+  return uid;
+}
+
+document.getElementById('saveUserId').addEventListener('click', () => {
+  const val = userInput.value.trim();
+  if (!val) { showToast('Please enter a user ID', 'error'); return; }
+  setUserId(val);
+  userStatus.innerHTML = `<span class="pill pill-green"><span class="dot"></span> Saved</span>`;
+  userSetup.classList.remove('show');
+  loadDashboard(val);
+  setTimeout(() => { userStatus.innerHTML = ''; }, 2500);
+});
+
+// ── Ping ─────────────────────────────────────────────────────────────────────
+async function checkPing() {
+  const pill = document.getElementById('apiPill');
+  try {
+    await ping();
+    pill.className = 'pill pill-green';
+    pill.innerHTML = '<span class="dot"></span> Online';
+  } catch {
+    pill.className = 'pill pill-red';
+    pill.innerHTML = '<span class="dot"></span> Offline';
+  }
+}
+
+// ── Summary ───────────────────────────────────────────────────────────────────
+async function loadDashboard(uid) {
+  if (!uid) return;
+  try {
+    const data = await getMoodSummary(uid);
+    renderSummary(data);
+    renderChart(data.breakdown || {});
+  } catch (e) {
+    document.getElementById('summaryContent').innerHTML =
+      `<p style="color:var(--error);font-size:.875rem">Could not load summary. Is the backend running?</p>`;
+  }
+}
+
+function renderSummary(d) {
+  const el = document.getElementById('summaryContent');
+  if (!d.total_entries) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No mood entries yet.</p></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="grid-3" style="margin-bottom:0">
+      <div class="mood-stat">
+        <div class="stat-number">${d.total_entries}</div>
+        <div class="stat-label">Total Entries</div>
+      </div>
+      <div class="mood-stat">
+        <div class="emoji">${moodEmoji(d.latest_mood)}</div>
+        <div class="stat-label">Latest Mood</div>
+        <div style="font-size:.85rem;font-weight:500;text-transform:capitalize;margin-top:2px">${d.latest_mood || '—'}</div>
+      </div>
+      <div class="mood-stat">
+        <div class="emoji">${moodEmoji(d.most_common_mood)}</div>
+        <div class="stat-label">Most Common</div>
+        <div style="font-size:.85rem;font-weight:500;text-transform:capitalize;margin-top:2px">${d.most_common_mood || '—'}</div>
+      </div>
+    </div>`;
+}
+
+function renderChart(breakdown) {
+  const el = document.getElementById('breakdownChart');
+  const empty = document.getElementById('breakdownEmpty');
+  const entries = Object.entries(breakdown).sort((a,b) => b[1]-a[1]);
+  if (!entries.length) { el.appendChild(empty); return; }
+  const max = entries[0][1];
+  el.innerHTML = `<div class="bar-chart">${entries.map(([mood, cnt]) => `
+    <div class="bar-row">
+      <span class="bar-label">${moodEmoji(mood)} ${mood}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt/max*100)}%"></div></div>
+      <span class="bar-count">${cnt}</span>
+    </div>`).join('')}</div>`;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+const uid = initUser();
+checkPing();
+loadDashboard(uid);
+</script>
+</body>
+</html>

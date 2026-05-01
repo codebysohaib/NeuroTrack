@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroTrack — Wellness Tips</title>
+  <meta name="description" content="Get personalised CBT-inspired wellness tips based on your current mood from NeuroTrack." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .mood-selector { margin-bottom: 28px; }
+    .mood-selector h2 { margin-bottom: 14px; }
+    .tips-area { min-height: 180px; }
+    .tips-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .tips-grid { display: flex; flex-direction: column; gap: 12px; }
+    .count-badge { background: var(--primary-lt); color: var(--primary); padding: 3px 10px; border-radius: 20px; font-size: .8rem; font-weight: 600; }
+    .tip-icon { font-size: 1.3rem; margin-bottom: 10px; }
+    .selected-mood-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px; background: var(--primary); color: #fff; font-size: .9rem; font-weight: 500; margin-bottom: 20px; }
+    .all-tips-section { margin-top: 44px; }
+    .all-tips-section h2 { margin-bottom: 16px; }
+    .all-moods-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; }
+    .mood-tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
+    .mood-tip-card .mood-head { font-weight: 600; margin-bottom: 8px; font-size: .9rem; text-transform: capitalize; display: flex; align-items: center; gap: 6px; }
+    .mood-tip-card .tip-item { font-size: .82rem; color: var(--text-2); padding: 6px 0; border-bottom: 1px solid var(--border); line-height: 1.5; }
+    .mood-tip-card .tip-item:last-child { border-bottom: none; }
+    #allTipsLoading { text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="logo-icon">🧠</div>
+    <span>NeuroTrack</span>
+  </a>
+  <button class="hamburger" id="hamburger">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html"><span class="nav-icon">🏠</span> Dashboard</a></li>
+    <li><a href="chat.html"><span class="nav-icon">💬</span> Chat</a></li>
+    <li><a href="mood.html"><span class="nav-icon">📊</span> Mood</a></li>
+    <li><a href="suggestions.html" class="active"><span class="nav-icon">💡</span> Tips</a></li>
+    <li><a href="status.html"><span class="nav-icon">❤️</span> Status</a></li>
+  </ul>
+</nav>
+
+<main class="main">
+
+  <div class="page-header">
+    <h1>💡 Wellness Tips</h1>
+    <p>CBT-inspired suggestions tailored to your current mood. Select how you're feeling to get started.</p>
+  </div>
+
+  <!-- Mood selector -->
+  <div class="card mood-selector">
+    <h2>How are you feeling right now?</h2>
+    <div class="mood-grid" id="moodGrid"></div>
+  </div>
+
+  <!-- Tips result -->
+  <div class="card tips-area" id="tipsCard" style="display:none">
+    <div class="tips-header">
+      <div>
+        <div id="selectedMoodPill"></div>
+        <div class="card-title" style="margin-bottom:0">Suggested for you</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="count-badge" id="tipCount"></span>
+        <button class="btn btn-outline btn-sm" id="refreshTipsBtn">🔄 New tips</button>
+      </div>
+    </div>
+    <div class="tips-grid" id="tipsGrid"></div>
+  </div>
+
+  <!-- Loading tips -->
+  <div id="tipsLoading" style="display:none;text-align:center;padding:40px">
+    <span class="spinner" style="width:28px;height:28px"></span>
+    <p style="margin-top:12px;font-size:.875rem">Loading tips…</p>
+  </div>
+
+  <!-- All tips library -->
+  <div class="all-tips-section">
+    <h2>📚 Full Tips Library</h2>
+    <p style="margin-bottom:20px">All CBT-inspired wellness tips across every mood.</p>
+    <div id="allTipsLoading"><span class="spinner" style="width:28px;height:28px"></span></div>
+    <div class="all-moods-grid" id="allTipsGrid" style="display:none"></div>
+  </div>
+
+</main>
+
+<footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
+<div id="toast-container"></div>
+
+<script type="module">
+import { getSuggestions, getAllSuggestions, getSupportedMoods, showToast, moodEmoji, MOOD_META } from './js/api.js';
+
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+
+let currentMood = '';
+
+// ── Mood grid ─────────────────────────────────────────────────────────────────
+async function buildMoodGrid() {
+  const grid = document.getElementById('moodGrid');
+  try {
+    const data = await getSupportedMoods();
+    data.supported_moods.forEach(mood => {
+      const meta = MOOD_META[mood] || { emoji: '🙂', label: mood };
+      const btn = document.createElement('button');
+      btn.className = 'mood-btn';
+      btn.dataset.mood = mood;
+      btn.innerHTML = `<span class="emoji">${meta.emoji}</span><span>${meta.label || mood}</span>`;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentMood = mood;
+        fetchTips(mood);
+      });
+      grid.appendChild(btn);
+    });
+  } catch {
+    // Fallback to static list
+    Object.entries(MOOD_META).forEach(([mood, { emoji, label }]) => {
+      const btn = document.createElement('button');
+      btn.className = 'mood-btn';
+      btn.dataset.mood = mood;
+      btn.innerHTML = `<span class="emoji">${emoji}</span><span>${label}</span>`;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentMood = mood;
+        fetchTips(mood);
+      });
+      grid.appendChild(btn);
+    });
+  }
+}
+
+// ── Fetch tips ────────────────────────────────────────────────────────────────
+async function fetchTips(mood) {
+  document.getElementById('tipsCard').style.display = 'none';
+  document.getElementById('tipsLoading').style.display = 'block';
+  try {
+    const data = await getSuggestions(mood, 3);
+    document.getElementById('tipsLoading').style.display = 'none';
+    document.getElementById('tipsCard').style.display = 'block';
+    const meta = MOOD_META[mood] || { emoji: '🙂', label: mood };
+    document.getElementById('selectedMoodPill').innerHTML =
+      `<span class="selected-mood-pill">${meta.emoji} ${meta.label || mood}</span>`;
+    document.getElementById('tipCount').textContent = `${data.count} tip${data.count !== 1 ? 's' : ''}`;
+    const grid = document.getElementById('tipsGrid');
+    grid.innerHTML = data.tips.map((tip, i) => `
+      <div class="tip-card">
+        <span class="tip-num">#${i+1}</span>
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">${escHtml(tip)}</div>
+      </div>`).join('');
+  } catch (e) {
+    document.getElementById('tipsLoading').style.display = 'none';
+    showToast('Could not load tips. Is the backend running?', 'error');
+  }
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.getElementById('refreshTipsBtn').addEventListener('click', () => {
+  if (currentMood) fetchTips(currentMood);
+});
+
+// ── All tips library ──────────────────────────────────────────────────────────
+async function loadAllTips() {
+  try {
+    const data = await getAllSuggestions();
+    document.getElementById('allTipsLoading').style.display = 'none';
+    const grid = document.getElementById('allTipsGrid');
+    grid.style.display = 'grid';
+    grid.innerHTML = Object.entries(data.suggestions).map(([mood, tips]) => {
+      const meta = MOOD_META[mood] || { emoji: '🙂', label: mood };
+      return `<div class="mood-tip-card">
+        <div class="mood-head">${meta.emoji} ${meta.label || mood}</div>
+        ${tips.slice(0, 4).map(t => `<div class="tip-item">• ${escHtml(t)}</div>`).join('')}
+      </div>`;
+    }).join('');
+  } catch {
+    document.getElementById('allTipsLoading').innerHTML = `<p style="color:var(--text-3);font-size:.875rem">Could not load tips library.</p>`;
+  }
+}
+
+buildMoodGrid();
+loadAllTips();
+</script>
+</body>
+</html>
