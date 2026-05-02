@@ -8,7 +8,7 @@ from routes.health import health_bp
 
 app = Flask(__name__)
 
-CORS(app, origins=["https://neurotrack-nine.vercel.app"])
+CORS(app)
 
 # Register Blueprints
 app.register_blueprint(health_bp, url_prefix="/api")
