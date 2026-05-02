@@ -339,6 +339,48 @@ body {
   .navbar { padding: 0 var(--space-md); }
 }
 
+/* ── Mood Selection ── */
+.mood-grid, .mood-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.mood-btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
+  font-family: inherit;
+}
+
+.mood-btn:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.mood-btn.selected {
+  background: var(--primary-lt);
+  border-color: var(--primary);
+  color: var(--primary-dk);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.mood-btn span {
+  font-size: 2rem;
+  line-height: 1;
+}
+
 /* ── Theme Toggle ── */
 .theme-toggle {
   background: var(--surface-2);
