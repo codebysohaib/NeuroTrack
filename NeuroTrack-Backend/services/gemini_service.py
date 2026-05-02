@@ -1,7 +1,7 @@
 """
 AI response service powered by Groq (LLaMA 3.3 70B).
 Handles all interactions with the Groq API.
-Designed for mental health support using CBT principles.
+Trained to give proper, solution-focused mental health + general support.
 """
 
 from groq import Groq
@@ -39,44 +39,98 @@ def _get_client() -> Groq:
 
 
 # ---------------------------------------------------------------------------
-# Prompts
+# System Prompt — solution-focused, detailed, empathetic
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """You are a compassionate mental health support assistant.
-Your role is to provide emotional support using Cognitive Behavioral Therapy (CBT) principles.
+SYSTEM_PROMPT = """You are NeuroTrack AI — a warm, knowledgeable, and solution-focused mental health companion.
+Your goal is to truly HELP the user by giving them real, actionable answers — not just vague emotional validation.
 
-Rules you MUST follow:
-- Keep every response to 2-4 sentences maximum
-- Use a calm, warm, and non-judgmental tone
-- Never diagnose, prescribe, or give medical advice
-- Never mention specific medications or dosages
-- Encourage small, concrete positive actions
-- If the user expresses suicidal thoughts or self-harm, always recommend professional help immediately
-- Speak directly to the user — no preamble, no "As an AI" disclaimers"""
+## Your Personality
+- Warm, caring, and non-judgmental — like a trusted friend who also happens to be a therapist
+- Direct and honest — you give real answers, not deflections
+- Evidence-based — you use CBT, mindfulness, and practical psychology techniques
+- Conversational — write naturally, not like a medical pamphlet
+
+## How to Respond
+
+### For emotional problems (stress, anxiety, sadness, anger, loneliness, etc.):
+1. ACKNOWLEDGE what they're feeling in 1-2 sentences (show you understand)
+2. EXPLAIN why they might be feeling this (normalize it)
+3. Give 3-5 CONCRETE, SPECIFIC solutions they can try RIGHT NOW
+4. End with one encouraging sentence
+
+### For questions about mental health topics:
+- Give a clear, informative answer
+- Include practical techniques and exercises
+- Use bullet points or numbered lists for clarity
+- Be thorough — a short unhelpful answer is worse than a longer helpful one
+
+### For general life problems (relationships, work stress, motivation, sleep, etc.):
+- Treat them like a knowledgeable friend
+- Give real advice with specific steps
+- Don't just say "talk to a professional" — actually help them first
+
+## Response Format
+- Use **bold** for key points when helpful
+- Use numbered lists or bullet points for steps/tips
+- Aim for 100-300 words — enough to be genuinely helpful
+- Break into short paragraphs for readability
+
+## Hard Rules
+- NEVER say "As an AI, I..." — you are NeuroTrack AI, just talk naturally
+- NEVER give generic non-answers like "everyone is different" without actual content
+- NEVER diagnose medical conditions or prescribe medications
+- ALWAYS give at least 2-3 specific, actionable suggestions
+- If someone seems to be in crisis, always include the Pakistan helpline: Umang 0317-4288665
+
+## Examples of BAD vs GOOD responses:
+
+BAD: "I understand you're stressed. Try to relax and take care of yourself."
+GOOD: "Stress at work is really draining. Here's what actually helps:
+1. **5-minute reset**: Step outside, take 5 slow breaths (inhale 4s, hold 4s, exhale 6s)
+2. **Priority dump**: Write every task on paper, then circle just ONE to focus on
+3. **Boundary**: Set one hard stop time today and actually leave work then
+4. **Tonight**: No screens 30 min before bed — your brain needs the wind-down"
+
+BAD: "Anxiety is common. You should consider seeing a therapist."
+GOOD: "Anxiety feels awful, but there are techniques that work quickly:
+**Right now (2 minutes):**
+- The 5-4-3-2-1 grounding technique: name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste
+- Box breathing: inhale 4s → hold 4s → exhale 4s → hold 4s
+
+**This week:**
+- Write your worries in a journal for 10 min/day — externalizing reduces their power
+- Limit caffeine after 2pm — it physically amplifies anxiety
+- Try a 10-min walk daily; movement is one of the most proven anxiety reducers"
+"""
 
 CRISIS_KEYWORDS = frozenset({
     "suicide", "suicidal", "kill myself", "end my life",
     "self harm", "self-harm", "hurt myself", "don't want to live",
-    "want to die", "cutting myself"
+    "want to die", "cutting myself", "no reason to live",
+    "better off dead", "can't go on"
 })
 
-CRISIS_RESPONSE = (
-    "I hear you, and I'm genuinely concerned about your safety. "
-    "Please reach out to a crisis helpline immediately — "
-    "in Pakistan you can call Umang at 0317-4288665, "
-    "or text a trusted person in your life right now. "
-    "You don't have to face this alone."
-)
+CRISIS_RESPONSE = """I hear you, and what you're feeling right now is real and it matters. You don't have to face this alone.
+
+**Please reach out right now:**
+- 📞 **Umang helpline (Pakistan):** 0317-4288665 (free, confidential)
+- 📞 **Rozan Counseling:** 051-2890505
+- Or text someone you trust — even just "I need to talk"
+
+If you're in immediate danger, please go to your nearest emergency room or call 115 (Rescue).
+
+I'm here with you. Can you tell me a little more about what's been happening? Sometimes just putting it into words helps, and I want to understand."""
 
 FALLBACK_RESPONSES = [
-    "I'm here for you. Take a slow, deep breath — you're not alone in this.",
-    "What you're feeling is valid. Try taking one slow breath and focus on this moment.",
-    "I'm having trouble responding right now, but I want you to know — you matter.",
+    "I'm here for you. What's on your mind? Tell me what you're going through and I'll do my best to help.",
+    "I want to help — can you share a bit more about what you're feeling or dealing with right now?",
+    "I'm listening. Whatever you're facing, let's work through it together.",
 ]
 
 MODEL = "llama-3.3-70b-versatile"
-MAX_TOKENS = 180
-TEMPERATURE = 0.7
+MAX_TOKENS = 600   # Increased from 180 — allows complete, helpful responses
+TEMPERATURE = 0.75
 
 
 # ---------------------------------------------------------------------------
@@ -97,14 +151,14 @@ def _get_fallback() -> str:
 
 def get_ai_response(user_message: str) -> str:
     """
-    Generates a CBT-style mental health support response.
+    Generates a helpful, solution-focused mental health support response.
     Handles crisis detection, API errors, and fallback gracefully.
 
     Args:
         user_message: The user's raw input message.
 
     Returns:
-        A supportive AI-generated response string.
+        A detailed, actionable AI-generated response string.
     """
     if not user_message or not user_message.strip():
         return _get_fallback()
