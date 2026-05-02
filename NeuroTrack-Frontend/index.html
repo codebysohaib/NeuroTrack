@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NeuroTrack — Dashboard</title>
-  <meta name="description"
-    content="Your personal AI mental health companion. Track moods, chat with AI, and get wellness tips." />
+  <meta name="description" content="Your personal AI mental health companion. Track moods, chat with AI, and get wellness tips." />
   <link rel="stylesheet" href="css/style.css" />
   <style>
     .hero {
@@ -20,35 +18,12 @@
       justify-content: space-between;
       gap: 24px;
     }
+    .hero-text h1 { font-size: 1.8rem; }
+    .hero-text p { font-size: .95rem; margin-top: 6px; max-width: 480px; }
+    .hero-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .hero-art { font-size: 5rem; flex-shrink: 0; }
 
-    .hero-text h1 {
-      font-size: 1.8rem;
-    }
-
-    .hero-text p {
-      font-size: .95rem;
-      margin-top: 6px;
-      max-width: 480px;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .hero-art {
-      font-size: 5rem;
-      flex-shrink: 0;
-    }
-
-    .quick-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-
+    .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
     .quick-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -64,120 +39,42 @@
       transition: var(--transition);
       box-shadow: var(--shadow-sm);
     }
+    .quick-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); transform: translateY(-2px); }
 
-    .quick-card:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary);
-      transform: translateY(-2px);
-    }
+    .quick-icon { font-size: 1.6rem; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .quick-icon.blue { background: var(--primary-lt); }
+    .quick-icon.green { background: var(--success-lt); }
+    .quick-icon.yellow { background: var(--warning-lt); }
+    .quick-icon.gray { background: var(--surface-2); }
 
-    .quick-icon {
-      font-size: 1.6rem;
-      width: 46px;
-      height: 46px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+    .quick-info h3 { font-size: .95rem; }
+    .quick-info p { font-size: .8rem; margin-top: 2px; }
 
-    .quick-icon.blue {
-      background: var(--primary-lt);
-    }
+    .mood-stat { text-align: center; padding: 12px; }
+    .mood-stat .emoji { font-size: 1.8rem; }
 
-    .quick-icon.green {
-      background: var(--success-lt);
-    }
-
-    .quick-icon.yellow {
-      background: var(--warning-lt);
-    }
-
-    .quick-icon.gray {
-      background: var(--surface-2);
-    }
-
-    .quick-info h3 {
-      font-size: .95rem;
-    }
-
-    .quick-info p {
-      font-size: .8rem;
-      margin-top: 2px;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: var(--text);
-    }
-
-    .status-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 0;
+    /* Auth state bar */
+    .auth-status-bar {
+      padding: 10px 24px;
+      background: #f8f9fa;
       border-bottom: 1px solid var(--border);
-    }
-
-    .status-row:last-child {
-      border-bottom: none;
-    }
-
-    .mood-stat {
-      text-align: center;
-      padding: 12px;
-    }
-
-    .mood-stat .emoji {
-      font-size: 1.8rem;
-    }
-
-    #summary-skeleton {
+      font-size: 0.8rem;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
     }
-
-    .skel {
-      height: 16px;
-      border-radius: 4px;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-    }
-
-    @keyframes shimmer {
-      to {
-        background-position: -200% 0;
-      }
-    }
-
-    .skel.short {
-      width: 40%;
-    }
-
-    .user-setup {
-      background: var(--warning-lt);
-      border: 1px solid #fdd663;
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 20px;
-      font-size: .875rem;
-      color: #594300;
-      display: none;
-    }
-
-    .user-setup.show {
+    .auth-status-bar .user-badge {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
+      background: white;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
     }
   </style>
 </head>
-
 <body>
 
   <nav class="navbar">
@@ -187,33 +84,28 @@
     </a>
     <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
     <ul class="nav-links" id="navLinks">
-      <li><a href="index.html" class="active nav-icon-wrap"><span class="nav-icon">🏠</span> Dashboard</a></li>
-      <li><a href="chat.html" class="nav-icon-wrap"><span class="nav-icon">💬</span> Chat</a></li>
-      <li><a href="mood.html" class="nav-icon-wrap"><span class="nav-icon">📊</span> Mood</a></li>
-      <li><a href="suggestions.html" class="nav-icon-wrap"><span class="nav-icon">💡</span> Tips</a></li>
-      <li><a href="status.html" class="nav-icon-wrap"><span class="nav-icon">❤️</span> Status</a></li>
+      <li><a href="index.html" class="active">🏠 Dashboard</a></li>
+      <li><a href="chat.html">💬 Chat</a></li>
+      <li><a href="mood.html">📊 Mood</a></li>
+      <li><a href="suggestions.html">💡 Tips</a></li>
+      <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline" style="margin-left:10px">Login</a></li>
     </ul>
   </nav>
 
-  <div class="user-bar">
-    <span>👤 User ID:</span>
-    <input type="text" id="userIdInput" placeholder="Enter your user ID…" maxlength="40" />
-    <button class="btn btn-sm btn-primary" id="saveUserId">Save</button>
-    <span id="userIdStatus"></span>
+  <div class="auth-status-bar">
+    <div class="user-badge">
+      <span id="userTypeIcon">👤</span>
+      <span id="userDisplayName">Guest Account</span>
+    </div>
+    <div id="authActionText">Sync your data by <a href="login.html" style="color:var(--primary); font-weight:600; text-decoration:none">Logging In</a></div>
   </div>
 
   <main class="main">
-
-    <div class="user-setup" id="userSetup">
-      ⚠️ Please enter a User ID above to load your personalised dashboard.
-    </div>
-
     <!-- Hero -->
     <div class="hero">
       <div class="hero-text">
-        <h1>Hi there 👋</h1>
-        <p>Welcome to NeuroTrack — your calm, supportive AI companion for mental wellbeing. How are you feeling today?
-        </p>
+        <h1 id="welcomeTitle">Hi there 👋</h1>
+        <p>Welcome to NeuroTrack — your calm, supportive AI companion for mental wellbeing. How are you feeling today?</p>
         <div class="hero-actions">
           <a href="chat.html" class="btn btn-primary">💬 Start Chatting</a>
           <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
@@ -235,7 +127,7 @@
         <div class="quick-icon green">📊</div>
         <div class="quick-info">
           <h3>Mood Tracker</h3>
-          <p>Log &amp; visualise your moods</p>
+          <p>Log & visualise your moods</p>
         </div>
       </a>
       <a href="suggestions.html" class="quick-card">
@@ -245,32 +137,17 @@
           <p>CBT-inspired daily suggestions</p>
         </div>
       </a>
-      <a href="status.html" class="quick-card">
-        <div class="quick-icon gray">❤️</div>
-        <div class="quick-info">
-          <h3>System Status</h3>
-          <p>API health &amp; uptime</p>
-        </div>
-      </a>
     </div>
 
     <!-- Stats + Summary -->
     <div class="grid-2" style="margin-bottom:20px">
-
-      <!-- Mood Summary -->
       <div class="card">
         <div class="card-title">Your Mood Summary</div>
         <div id="summaryContent">
-          <div id="summary-skeleton">
-            <div class="skel" style="width:60%"></div>
-            <div class="skel short"></div>
-            <div class="skel" style="width:80%"></div>
-            <div class="skel short"></div>
-          </div>
+          <div class="skel" style="width:60%; margin-bottom:10px"></div>
+          <div class="skel" style="width:40%"></div>
         </div>
       </div>
-
-      <!-- Mood Breakdown chart -->
       <div class="card">
         <div class="card-title">Mood Breakdown</div>
         <div id="breakdownChart">
@@ -280,54 +157,70 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- API Status -->
     <div class="card">
-      <div class="card-title">API Status</div>
+      <div class="card-title">Service Status</div>
       <div class="status-row">
-        <span style="font-size:.875rem;font-weight:500">Backend Service</span>
+        <span style="font-size:.875rem;font-weight:500">NeuroTrack Backend</span>
         <span id="apiPill" class="pill pill-gray"><span class="dot"></span> Checking…</span>
       </div>
     </div>
-
   </main>
 
   <footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
   <div id="toast-container"></div>
 
   <script type="module">
-    import { ping, getMoodSummary, getUserId, setUserId, showToast, moodEmoji, MOOD_META } from './js/api.js';
+    import { auth, logout, ping, getMoodSummary, getUserId, moodEmoji } from './js/api.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
     // ── Hamburger ────────────────────────────────────────────────────────────────
     document.getElementById('hamburger').addEventListener('click', () => {
       document.getElementById('navLinks').classList.toggle('open');
     });
 
-    // ── User ID ──────────────────────────────────────────────────────────────────
-    const userInput = document.getElementById('userIdInput');
-    const userStatus = document.getElementById('userIdStatus');
-    const userSetup = document.getElementById('userSetup');
+    // ── Auth & Dashboard Init ───────────────────────────────────────────────────
+    onAuthStateChanged(auth, (user) => {
+      const authNavItem = document.getElementById('authNavItem');
+      const userDisplayName = document.getElementById('userDisplayName');
+      const authActionText = document.getElementById('authActionText');
+      const welcomeTitle = document.getElementById('welcomeTitle');
+      const userTypeIcon = document.getElementById('userTypeIcon');
 
-    function initUser() {
-      const uid = getUserId();
-      userInput.value = uid;
-      if (!uid) { userSetup.classList.add('show'); }
-      return uid;
-    }
+      if (user) {
+        // Authenticated State
+        userDisplayName.textContent = user.email || user.displayName || 'Authenticated User';
+        userTypeIcon.textContent = '✅';
+        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none">Sign Out</a>`;
+        authNavItem.innerHTML = `<a href="#" id="logoutNavBtn" class="btn btn-sm btn-outline">Logout</a>`;
+        welcomeTitle.textContent = `Hi, ${user.displayName || user.email.split('@')[0]} 👋`;
+        
+        document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); handleLogout(); };
+        document.getElementById('logoutNavBtn').onclick = (e) => { e.preventDefault(); handleLogout(); };
+      } else {
+        // Guest State
+        userDisplayName.textContent = 'Guest Account (' + getUserId() + ')';
+        userTypeIcon.textContent = '👤';
+        authActionText.innerHTML = `Sync your data by <a href="login.html" style="color:var(--primary); font-weight:600; text-decoration:none">Logging In</a>`;
+        authNavItem.innerHTML = `<a href="login.html" class="btn btn-sm btn-outline">Login</a>`;
+        welcomeTitle.textContent = `Hi there 👋`;
+      }
 
-    document.getElementById('saveUserId').addEventListener('click', () => {
-      const val = userInput.value.trim();
-      if (!val) { showToast('Please enter a user ID', 'error'); return; }
-      setUserId(val);
-      userStatus.innerHTML = `<span class="pill pill-green"><span class="dot"></span> Saved</span>`;
-      userSetup.classList.remove('show');
-      loadDashboard(val);
-      setTimeout(() => { userStatus.innerHTML = ''; }, 2500);
+      // Load data for the current user (Guest or Authenticated)
+      loadDashboard(getUserId());
     });
 
-    // ── Ping ─────────────────────────────────────────────────────────────────────
+    async function handleLogout() {
+      try {
+        await logout();
+        location.reload();
+      } catch (e) {
+        console.error('Logout failed', e);
+      }
+    }
+
     async function checkPing() {
       const pill = document.getElementById('apiPill');
       try {
@@ -340,7 +233,6 @@
       }
     }
 
-    // ── Summary ───────────────────────────────────────────────────────────────────
     async function loadDashboard(uid) {
       if (!uid) return;
       try {
@@ -348,8 +240,7 @@
         renderSummary(data);
         renderChart(data.breakdown || {});
       } catch (e) {
-        document.getElementById('summaryContent').innerHTML =
-          `<p style="color:var(--error);font-size:.875rem">Could not load summary. Is the backend running?</p>`;
+        document.getElementById('summaryContent').innerHTML = `<p style="color:var(--error);font-size:.875rem">Could not load summary.</p>`;
       }
     }
 
@@ -360,43 +251,36 @@
         return;
       }
       el.innerHTML = `
-    <div class="grid-3" style="margin-bottom:0">
-      <div class="mood-stat">
-        <div class="stat-number">${d.total_entries}</div>
-        <div class="stat-label">Total Entries</div>
-      </div>
-      <div class="mood-stat">
-        <div class="emoji">${moodEmoji(d.latest_mood)}</div>
-        <div class="stat-label">Latest Mood</div>
-        <div style="font-size:.85rem;font-weight:500;text-transform:capitalize;margin-top:2px">${d.latest_mood || '—'}</div>
-      </div>
-      <div class="mood-stat">
-        <div class="emoji">${moodEmoji(d.most_common_mood)}</div>
-        <div class="stat-label">Most Common</div>
-        <div style="font-size:.85rem;font-weight:500;text-transform:capitalize;margin-top:2px">${d.most_common_mood || '—'}</div>
-      </div>
-    </div>`;
+        <div class="grid-3" style="margin-bottom:0">
+          <div class="mood-stat">
+            <div class="stat-number">${d.total_entries}</div>
+            <div class="stat-label">Total Entries</div>
+          </div>
+          <div class="mood-stat">
+            <div class="emoji">${moodEmoji(d.latest_mood)}</div>
+            <div class="stat-label">Latest</div>
+          </div>
+          <div class="mood-stat">
+            <div class="emoji">${moodEmoji(d.most_common_mood)}</div>
+            <div class="stat-label">Common</div>
+          </div>
+        </div>`;
     }
 
     function renderChart(breakdown) {
       const el = document.getElementById('breakdownChart');
-      const empty = document.getElementById('breakdownEmpty');
       const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]);
-      if (!entries.length) { el.appendChild(empty); return; }
+      if (!entries.length) return;
       const max = entries[0][1];
       el.innerHTML = `<div class="bar-chart">${entries.map(([mood, cnt]) => `
-    <div class="bar-row">
-      <span class="bar-label">${moodEmoji(mood)} ${mood}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt / max * 100)}%"></div></div>
-      <span class="bar-count">${cnt}</span>
-    </div>`).join('')}</div>`;
+        <div class="bar-row">
+          <span class="bar-label">${moodEmoji(mood)} ${mood}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt / max * 100)}%"></div></div>
+          <span class="bar-count">${cnt}</span>
+        </div>`).join('')}</div>`;
     }
 
-    // ── Init ──────────────────────────────────────────────────────────────────────
-    const uid = initUser();
     checkPing();
-    loadDashboard(uid);
   </script>
 </body>
-
 </html>

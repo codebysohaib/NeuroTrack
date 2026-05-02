@@ -1,6 +1,24 @@
 /* Shared API layer — all fetch calls go through here */
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
 const BASE = 'https://neurotrack-0q5m.onrender.com/api';
+
+// ── Firebase Config ───────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyA5HUb6Mug3NJuhyrdhCKmxYXdx2O3Sris",
+  authDomain: "neurotrack-cbs.firebaseapp.com",
+  projectId: "neurotrack-cbs",
+  storageBucket: "neurotrack-cbs.firebasestorage.app",
+  messagingSenderId: "422832977385",
+  appId: "1:422832977385:web:afbfb05adf0665f2e50778",
+  measurementId: "G-ZYDVGCT5HF"
+};
+
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
@@ -11,6 +29,31 @@ async function apiFetch(path, options = {}) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw Object.assign(new Error(data.detail || data.error || 'Request failed'), { data, status: res.status });
   return data;
+}
+
+// ── Auth Actions ──────────────────────────────────────────────────────────────
+export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
+export const signupEmail = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
+export const loginEmail = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
+export const logout = () => {
+  localStorage.removeItem('neurotrack_guest_id'); // Optional: clear guest ID on real logout
+  return signOut(auth);
+};
+
+// ── User ID Logic (The "Smart" ID) ───────────────────────────────────────────
+export function getUserId() {
+  // 1. If Firebase has a user, use their UID
+  if (auth.currentUser) return auth.currentUser.uid;
+
+  // 2. Otherwise, check for a stored Guest ID
+  let guestId = localStorage.getItem('neurotrack_guest_id');
+  
+  // 3. If no Guest ID exists, generate a random one
+  if (!guestId) {
+    guestId = 'guest_' + Math.random().toString(36).substring(2, 11);
+    localStorage.setItem('neurotrack_guest_id', guestId);
+  }
+  return guestId;
 }
 
 // ── Health ────────────────────────────────────────────────────────────────────
@@ -37,15 +80,7 @@ export const getSuggestions  = (mood, count = 3) => apiFetch(`/suggestions?mood=
 export const getAllSuggestions = ()              => apiFetch('/suggestions/all');
 export const getSupportedMoods = ()             => apiFetch('/suggestions/moods');
 
-// ── User ID (persisted) ───────────────────────────────────────────────────────
-export function getUserId() {
-  return localStorage.getItem('neurotrack_user_id') || '';
-}
-export function setUserId(id) {
-  localStorage.setItem('neurotrack_user_id', id.trim());
-}
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
+// ── UI Helpers ────────────────────────────────────────────────────────────────
 export function showToast(msg, type = 'info', duration = 3500) {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -60,7 +95,6 @@ export function showToast(msg, type = 'info', duration = 3500) {
   setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, duration);
 }
 
-// ── Loading helpers ───────────────────────────────────────────────────────────
 export function setLoading(btn, loading, originalText) {
   if (loading) {
     btn.disabled = true;
@@ -72,7 +106,6 @@ export function setLoading(btn, loading, originalText) {
   }
 }
 
-// ── Mood metadata ─────────────────────────────────────────────────────────────
 export const MOOD_META = {
   happy:       { emoji: '😊', label: 'Happy' },
   sad:         { emoji: '😢', label: 'Sad' },

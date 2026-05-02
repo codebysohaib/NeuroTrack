@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuroTrack — Login</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: 60px auto;
+      padding: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+    .auth-header h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    .auth-header p { font-size: 0.875rem; color: #5f6368; margin-bottom: 24px; }
+    
+    .social-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 500;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+    .social-btn:hover { background: #f8f9fa; border-color: var(--primary); }
+    .social-btn img { width: 18px; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0;
+      color: #9aa0a6;
+      font-size: 0.75rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+    .divider:not(:empty)::before { margin-right: .75em; }
+    .divider:not(:empty)::after { margin-left: .75em; }
+
+    .auth-form { text-align: left; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; }
+
+    .auth-toggle { margin-top: 24px; font-size: 0.85rem; }
+    .auth-toggle a { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🧠</div>
+      <span>NeuroTrack</span>
+    </a>
+  </nav>
+
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1 id="authTitle">Welcome Back</h1>
+      <p id="authSub">Sign in to sync your moods and data.</p>
+    </div>
+
+    <button class="social-btn" id="googleLogin">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
+      Continue with Google
+    </button>
+
+    <div class="divider">OR</div>
+
+    <form class="auth-form" id="authForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="email@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">Sign In</button>
+    </form>
+
+    <div class="auth-toggle">
+      <span id="toggleText">Don't have an account?</span>
+      <a id="toggleMode">Sign Up</a>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { auth, loginWithGoogle, loginEmail, signupEmail, showToast, setLoading } from './js/api.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+    let isSignup = false;
+    const form = document.getElementById('authForm');
+    const toggleBtn = document.getElementById('toggleMode');
+    const title = document.getElementById('authTitle');
+    const sub = document.getElementById('authSub');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Check if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) window.location.href = 'index.html';
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      isSignup = !isSignup;
+      title.textContent = isSignup ? 'Create Account' : 'Welcome Back';
+      sub.textContent = isSignup ? 'Start your mental health journey today.' : 'Sign in to sync your moods and data.';
+      submitBtn.textContent = isSignup ? 'Create Account' : 'Sign In';
+      document.getElementById('toggleText').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
+      toggleBtn.textContent = isSignup ? 'Sign In' : 'Sign Up';
+    });
+
+    // Google Login
+    document.getElementById('googleLogin').addEventListener('click', async () => {
+      try {
+        await loginWithGoogle();
+        window.location.href = 'index.html';
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    });
+
+    // Email Login/Signup
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('password').value;
+      
+      setLoading(submitBtn, true);
+      try {
+        if (isSignup) {
+          await signupEmail(email, pass);
+          showToast('Account created!', 'success');
+        } else {
+          await loginEmail(email, pass);
+        }
+        window.location.href = 'index.html';
+      } catch (e) {
+        showToast(e.message, 'error');
+      } finally {
+        setLoading(submitBtn, false);
+      }
+    });
+  </script>
+</body>
+</html>
