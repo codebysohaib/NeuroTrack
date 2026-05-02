@@ -37,9 +37,14 @@ def _initialize_firebase() -> bool:
     
     if firebase_env:
         try:
-            # FIX: Real newlines ko wapas escaped newlines banayen, aur strict=False set karein
-            firebase_env = firebase_env.replace('\n', '\\n')
-            cred_dict = json.loads(firebase_env, strict=False)
+            # Try parsing directly first (env var may already be valid JSON)
+            try:
+                cred_dict = json.loads(firebase_env)
+            except json.JSONDecodeError:
+                # Fallback: some CI/CD tools inject literal newlines in the private_key.
+                # Replace literal newline chars inside the value with the \n escape sequence.
+                firebase_env_fixed = firebase_env.replace('\n', '\\n')
+                cred_dict = json.loads(firebase_env_fixed)
             
             if not firebase_admin._apps:
                 cred = credentials.Certificate(cred_dict)
@@ -127,5 +132,5 @@ def get_firebase_status() -> dict:
 
 
 def is_firebase_ready() -> bool:
-    """Quick boolean check for Firebase availability."""
-    return _db is not None or _initialized
+    """Quick boolean check for Firebase availability. True only when Firestore client is active."""
+    return _db is not None

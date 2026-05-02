@@ -39,10 +39,10 @@ export const getSupportedMoods = ()             => apiFetch('/suggestions/moods'
 
 // ── User ID (persisted) ───────────────────────────────────────────────────────
 export function getUserId() {
-  return localStorage.getItem('sukoon_user_id') || '';
+  return localStorage.getItem('neurotrack_user_id') || '';
 }
 export function setUserId(id) {
-  localStorage.setItem('sukoon_user_id', id.trim());
+  localStorage.setItem('neurotrack_user_id', id.trim());
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────

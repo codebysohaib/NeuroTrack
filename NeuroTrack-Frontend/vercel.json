@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-backend-name.onrender.com/:path*"
+      "destination": "https://neurotrack-0q5m.onrender.com/:path*"
     },
     {
       "source": "/(.*)",
