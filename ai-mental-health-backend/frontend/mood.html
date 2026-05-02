@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroTrack — Mood Tracker</title>
+  <meta name="description"
+    content="Log and track your daily moods with NeuroTrack. Visualise patterns and understand your emotional wellbeing." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .form-card {
+      max-width: 640px;
+    }
+
+    .intensity-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .intensity-row input[type="range"] {
+      flex: 1;
+    }
+
+    .intensity-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .mood-emoji-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      margin-top: 4px;
+      color: var(--text-2);
+    }
+
+    .mood-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filter-row select,
+    .filter-row input {
+      width: auto;
+    }
+
+    .filter-row label {
+      font-size: .875rem;
+      color: var(--text-2);
+    }
+
+    td .mood-tag {
+      background: var(--primary-lt);
+      color: var(--primary);
+    }
+
+    td .intensity-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+
+    .success-banner {
+      background: var(--success-lt);
+      border: 1px solid #a8d5b5;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      font-size: .875rem;
+      color: var(--success);
+      display: none;
+    }
+
+    .success-banner.show {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #historySection {
+      margin-top: 36px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    tr td:first-child {
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🧠</div>
+      <span>NeuroTrack</span>
+    </a>
+    <button class="hamburger" id="hamburger">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html"><span class="nav-icon">🏠</span> Dashboard</a></li>
+      <li><a href="chat.html"><span class="nav-icon">💬</span> Chat</a></li>
+      <li><a href="mood.html" class="active"><span class="nav-icon">📊</span> Mood</a></li>
+      <li><a href="suggestions.html"><span class="nav-icon">💡</span> Tips</a></li>
+      <li><a href="status.html"><span class="nav-icon">❤️</span> Status</a></li>
+    </ul>
+  </nav>
+
+  <div class="user-bar">
+    <span>👤 User ID:</span>
+    <strong id="displayUid" style="font-size:.9rem"></strong>
+    <a href="index.html" style="font-size:.8rem;color:var(--primary);text-decoration:none;margin-left:auto">← Change</a>
+  </div>
+
+  <main class="main">
+
+    <div class="page-header">
+      <h1>📊 Mood Tracker</h1>
+      <p>Log how you're feeling and track patterns over time.</p>
+    </div>
+
+    <!-- Success banner -->
+    <div class="success-banner" id="successBanner">✅ Mood logged successfully!</div>
+
+    <!-- Log form -->
+    <div class="card form-card" style="margin-bottom:28px">
+      <h2 style="margin-bottom:20px">Log Today's Mood</h2>
+
+      <div class="form-group">
+        <label>How are you feeling? *</label>
+        <div class="mood-grid" id="moodGrid">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="mood-emoji-label" id="moodLabel" style="display:none"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="intensityRange">Intensity <span id="intensityDisplay" class="intensity-val">5</span>/10</label>
+        <div class="intensity-row">
+          <span style="font-size:.8rem;color:var(--text-3)">Low</span>
+          <input type="range" id="intensityRange" min="1" max="10" value="5" />
+          <span style="font-size:.8rem;color:var(--text-3)">High</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="moodNote">Note (optional)</label>
+        <textarea id="moodNote" placeholder="What's on your mind? (max 500 chars)" maxlength="500" rows="3"></textarea>
+        <span class="hint" id="noteCount">0 / 500</span>
+      </div>
+
+      <button class="btn btn-primary" id="logBtn">📝 Log Mood</button>
+    </div>
+
+    <!-- History -->
+    <div id="historySection">
+      <div class="section-header">
+        <h2>Mood History</h2>
+        <button class="btn btn-ghost btn-sm" id="refreshBtn">🔄 Refresh</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-row">
+        <label>Filter by mood:</label>
+        <select id="moodFilter">
+          <option value="">All moods</option>
+          <option value="happy">😊 Happy</option>
+          <option value="sad">😢 Sad</option>
+          <option value="anxious">😰 Anxious</option>
+          <option value="angry">😠 Angry</option>
+          <option value="stressed">😤 Stressed</option>
+          <option value="tired">😴 Tired</option>
+          <option value="lonely">😔 Lonely</option>
+          <option value="overwhelmed">😵 Overwhelmed</option>
+          <option value="depressed">😞 Depressed</option>
+          <option value="calm">😌 Calm</option>
+          <option value="neutral">😐 Neutral</option>
+        </select>
+        <label>Show:</label>
+        <select id="limitSelect">
+          <option value="10">Last 10</option>
+          <option value="30" selected>Last 30</option>
+          <option value="50">Last 50</option>
+          <option value="100">Last 100</option>
+        </select>
+      </div>
+
+      <div class="card" style="padding:0;overflow:hidden">
+        <div id="historyContent">
+          <div style="padding:20px;text-align:center"><span class="spinner"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
+  <div id="toast-container"></div>
+
+  <script type="module">
+    import { saveMood, getMoodHistory, getUserId, showToast, moodEmoji, MOOD_META, formatDate, setLoading } from './js/api.js';
+
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    const uid = getUserId();
+    document.getElementById('displayUid').textContent = uid || 'Not set — go to Dashboard';
+
+    // ── Mood grid ─────────────────────────────────────────────────────────────────
+    const MOODS = Object.entries(MOOD_META);
+    let selectedMood = '';
+
+    const moodGrid = document.getElementById('moodGrid');
+    MOODS.forEach(([key, { emoji, label }]) => {
+      const btn = document.createElement('button');
+      btn.className = 'mood-btn';
+      btn.dataset.mood = key;
+      btn.innerHTML = `<span class="emoji">${emoji}</span><span>${label}</span>`;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedMood = key;
+        const lbl = document.getElementById('moodLabel');
+        lbl.style.display = 'flex';
+        lbl.innerHTML = `<span style="font-size:1.4rem">${emoji}</span> You selected <strong>${label}</strong>`;
+      });
+      moodGrid.appendChild(btn);
+    });
+
+    // ── Intensity ─────────────────────────────────────────────────────────────────
+    const intensityRange = document.getElementById('intensityRange');
+    const intensityDisplay = document.getElementById('intensityDisplay');
+    intensityRange.addEventListener('input', () => {
+      intensityDisplay.textContent = intensityRange.value;
+    });
+
+    // ── Note counter ──────────────────────────────────────────────────────────────
+    const moodNote = document.getElementById('moodNote');
+    const noteCount = document.getElementById('noteCount');
+    moodNote.addEventListener('input', () => {
+      noteCount.textContent = `${moodNote.value.length} / 500`;
+    });
+
+    // ── Log mood ──────────────────────────────────────────────────────────────────
+    document.getElementById('logBtn').addEventListener('click', async () => {
+      if (!uid) { showToast('Set your User ID on the Dashboard first.', 'error'); return; }
+      if (!selectedMood) { showToast('Please select a mood first.', 'error'); return; }
+      const btn = document.getElementById('logBtn');
+      setLoading(btn, true);
+      try {
+        await saveMood(uid, selectedMood, moodNote.value.trim(), parseInt(intensityRange.value));
+        document.getElementById('successBanner').classList.add('show');
+        setTimeout(() => document.getElementById('successBanner').classList.remove('show'), 3000);
+        // Reset
+        selectedMood = '';
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('moodLabel').style.display = 'none';
+        moodNote.value = '';
+        noteCount.textContent = '0 / 500';
+        intensityRange.value = 5;
+        intensityDisplay.textContent = '5';
+        loadHistory();
+      } catch (e) {
+        showToast(e.message || 'Failed to save mood.', 'error');
+      } finally {
+        setLoading(btn, false);
+      }
+    });
+
+    // ── History ───────────────────────────────────────────────────────────────────
+    function intensityColor(v) {
+      if (!v) return 'var(--surface-2)';
+      if (v <= 3) return '#e6f4ea'; if (v <= 6) return '#fef7e0'; return '#fce8e6';
+    }
+    function intensityTextColor(v) {
+      if (!v) return 'var(--text-3)';
+      if (v <= 3) return 'var(--success)'; if (v <= 6) return '#7a5800'; return 'var(--error)';
+    }
+
+    async function loadHistory() {
+      if (!uid) {
+        document.getElementById('historyContent').innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><p>Set your User ID on the Dashboard to view history.</p></div>`;
+        return;
+      }
+      const el = document.getElementById('historyContent');
+      el.innerHTML = `<div style="padding:24px;text-align:center"><span class="spinner"></span></div>`;
+      const filter = document.getElementById('moodFilter').value;
+      const limit = parseInt(document.getElementById('limitSelect').value);
+      try {
+        const data = await getMoodHistory(uid, limit, filter);
+        if (!data.history?.length) {
+          el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No mood entries found${filter ? ` for <strong>${filter}</strong>` : ''}.</p></div>`;
+          return;
+        }
+        el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Mood</th><th>Intensity</th><th>Note</th><th>Date & Time</th></tr></thead>
+      <tbody>${data.history.map(h => `
+        <tr>
+          <td><span class="mood-tag">${moodEmoji(h.mood)} ${h.mood}</span></td>
+          <td>${h.intensity != null ? `<span class="intensity-chip" style="background:${intensityColor(h.intensity)};color:${intensityTextColor(h.intensity)}">${h.intensity}/10</span>` : '—'}</td>
+          <td style="max-width:260px;font-size:.85rem;color:var(--text-2)">${h.note || '—'}</td>
+          <td style="font-size:.8rem;color:var(--text-3)">${formatDate(h.timestamp)}</td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+      } catch (e) {
+        el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load history. Is the backend running?</p></div>`;
+      }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadHistory);
+    document.getElementById('moodFilter').addEventListener('change', loadHistory);
+    document.getElementById('limitSelect').addEventListener('change', loadHistory);
+
+    loadHistory();
+  </script>
+</body>
+
+</html>
