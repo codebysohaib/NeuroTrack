@@ -82,13 +82,15 @@
         <div class="logo-icon">🧠</div>
         <span>NeuroTrack</span>
       </a>
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <button class="theme-toggle" id="themeToggle">🌓</button>
-        <ul class="nav-links">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌓</button>
+        <button class="nav-toggle" id="navToggle">☰</button>
+        <ul class="nav-links" id="navLinks">
           <li><a href="index.html">Dashboard</a></li>
           <li><a href="chat.html" class="active">Chat</a></li>
           <li><a href="mood.html">Mood</a></li>
           <li><a href="suggestions.html">Tips</a></li>
+          <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline">Login</a></li>
         </ul>
       </div>
     </div>
@@ -151,11 +153,18 @@
 
     // ── Theme Manager ─────────────────────────────────────────────────────────
     const themeToggle = document.getElementById('themeToggle');
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+
     document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
     themeToggle.onclick = () => {
       const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
+    };
+    navToggle.onclick = () => {
+      navLinks.classList.toggle('show');
+      navToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
     };
 
     // ── Auth Init ─────────────────────────────────────────────────────────────
