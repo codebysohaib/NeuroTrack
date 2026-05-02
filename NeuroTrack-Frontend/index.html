@@ -231,5 +231,24 @@
       moodChart.update();
     }
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navToggle = document.getElementById('navToggle');
+      const navLinks = document.getElementById('navLinks');
+      if(navToggle && navLinks) {
+        navToggle.addEventListener('click', () => {
+          navLinks.classList.toggle('show');
+          navToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+          link.addEventListener('click', () => {
+            navLinks.classList.remove('show');
+            navToggle.textContent = '☰';
+          });
+        });
+      }
+    });
+  </script>
 </body>
 </html>

@@ -148,18 +148,14 @@
 
     // ── Theme Manager ─────────────────────────────────────────────────────────
     const themeToggle = document.getElementById('themeToggle');
-    const navToggle = document.getElementById('navToggle');
-    const navLinks = document.getElementById('navLinks');
+    
     document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
     themeToggle.onclick = () => {
       const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
     };
-    navToggle.onclick = () => {
-      navLinks.classList.toggle('show');
-      navToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
-    };
+    
 
     // ── Auth & Init ─────────────────────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
@@ -255,6 +251,25 @@
     function getIntensityColor(v) { if(v <= 3) return 'var(--success)'; if(v <= 7) return 'var(--warning)'; return 'var(--error)'; }
 
     moodFilter.onchange = loadHistory;
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navToggle = document.getElementById('navToggle');
+      const navLinks = document.getElementById('navLinks');
+      if(navToggle && navLinks) {
+        navToggle.addEventListener('click', () => {
+          navLinks.classList.toggle('show');
+          navToggle.textContent = navLinks.classList.contains('show') ? '✕' : '☰';
+        });
+        document.querySelectorAll('.nav-links a').forEach(link => {
+          link.addEventListener('click', () => {
+            navLinks.classList.remove('show');
+            navToggle.textContent = '☰';
+          });
+        });
+      }
+    });
   </script>
 </body>
 </html>
