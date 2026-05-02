@@ -1,6 +1,6 @@
 /* Shared API layer — all fetch calls go through here */
 
-const BASE = 'http://127.0.0.1:5000/api';
+const BASE = 'https://neurotrack-0q5m.onrender.com/api';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
