@@ -1,7 +1,7 @@
 /* Shared API layer — all fetch calls go through here */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
 const BASE = 'https://neurotrack-0q5m.onrender.com/api';
 
@@ -18,7 +18,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
@@ -32,23 +31,17 @@ async function apiFetch(path, options = {}) {
 }
 
 // ── Auth Actions ──────────────────────────────────────────────────────────────
-export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
 export const signupEmail = (email, pass) => createUserWithEmailAndPassword(auth, email, pass);
 export const loginEmail = (email, pass) => signInWithEmailAndPassword(auth, email, pass);
 export const logout = () => {
-  localStorage.removeItem('neurotrack_guest_id'); // Optional: clear guest ID on real logout
+  localStorage.removeItem('neurotrack_guest_id');
   return signOut(auth);
 };
 
 // ── User ID Logic (The "Smart" ID) ───────────────────────────────────────────
 export function getUserId() {
-  // 1. If Firebase has a user, use their UID
   if (auth.currentUser) return auth.currentUser.uid;
-
-  // 2. Otherwise, check for a stored Guest ID
   let guestId = localStorage.getItem('neurotrack_guest_id');
-  
-  // 3. If no Guest ID exists, generate a random one
   if (!guestId) {
     guestId = 'guest_' + Math.random().toString(36).substring(2, 11);
     localStorage.setItem('neurotrack_guest_id', guestId);

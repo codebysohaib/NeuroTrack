@@ -19,40 +19,6 @@
     .auth-header h1 { font-size: 1.5rem; margin-bottom: 8px; }
     .auth-header p { font-size: 0.875rem; color: #5f6368; margin-bottom: 24px; }
     
-    .social-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-weight: 500;
-      margin-bottom: 20px;
-      transition: var(--transition);
-    }
-    .social-btn:hover { background: #f8f9fa; border-color: var(--primary); }
-    .social-btn img { width: 18px; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      margin: 20px 0;
-      color: #9aa0a6;
-      font-size: 0.75rem;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--border);
-    }
-    .divider:not(:empty)::before { margin-right: .75em; }
-    .divider:not(:empty)::after { margin-left: .75em; }
-
     .auth-form { text-align: left; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
@@ -77,13 +43,6 @@
       <p id="authSub">Sign in to sync your moods and data.</p>
     </div>
 
-    <button class="social-btn" id="googleLogin">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
-      Continue with Google
-    </button>
-
-    <div class="divider">OR</div>
-
     <form class="auth-form" id="authForm">
       <div class="form-group">
         <label>Email Address</label>
@@ -105,7 +64,7 @@
   <div id="toast-container"></div>
 
   <script type="module">
-    import { auth, loginWithGoogle, loginEmail, signupEmail, showToast, setLoading } from './js/api.js';
+    import { auth, loginEmail, signupEmail, showToast, setLoading } from './js/api.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
     let isSignup = false;
@@ -115,7 +74,6 @@
     const sub = document.getElementById('authSub');
     const submitBtn = document.getElementById('submitBtn');
 
-    // Check if already logged in
     onAuthStateChanged(auth, (user) => {
       if (user) window.location.href = 'index.html';
     });
@@ -129,17 +87,6 @@
       toggleBtn.textContent = isSignup ? 'Sign In' : 'Sign Up';
     });
 
-    // Google Login
-    document.getElementById('googleLogin').addEventListener('click', async () => {
-      try {
-        await loginWithGoogle();
-        window.location.href = 'index.html';
-      } catch (e) {
-        showToast(e.message, 'error');
-      }
-    });
-
-    // Email Login/Signup
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
