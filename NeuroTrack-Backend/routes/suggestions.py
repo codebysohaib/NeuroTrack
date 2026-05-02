@@ -1,94 +1,70 @@
 from flask import Blueprint, request, jsonify
-from services.suggestions_service import get_suggestion, get_all_supported_moods, get_all_suggestions
+from services.gemini_service import get_ai_response
 from utils.validators import validate_mood
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 
 suggestions_bp = Blueprint("suggestions", __name__)
 
-
 @suggestions_bp.route("/suggestions", methods=["GET"])
 def get_suggestions():
     """
     GET /api/suggestions?mood=&count=
-    Returns mood-based wellness tips.
-    Optional: count (default 1, max 3) to return multiple tips at once.
+    Returns AI-generated mood-based wellness tips.
+    Uses Groq AI to generate fresh, personalized content.
     """
     mood = request.args.get("mood", "").strip().lower()
 
     if not mood:
         return jsonify({
             "error": "Missing parameter",
-            "detail": "Query parameter 'mood' is required.",
-            "supported_moods": get_all_supported_moods()
+            "detail": "Query parameter 'mood' is required."
         }), 400
 
     valid, err = validate_mood(mood)
     if not valid:
-        return jsonify({
-            "error": f"Unsupported mood: '{mood}'",
-            "detail": "Please use one of the supported moods.",
-            "supported_moods": get_all_supported_moods()
-        }), 400
+        return err
 
-    # Optional: return multiple tips
     try:
-        count = int(request.args.get("count", 1))
-        count = max(1, min(count, 3))
-    except ValueError:
-        count = 1
-
-    if count == 1:
-        tips = [get_suggestion(mood)]
-    else:
-        tips = get_all_suggestions(mood)[:count]
-
-    return jsonify({
-        "mood": mood,
-        "count": len(tips),
-        "tips": tips,
-        "tip": tips[0] if tips else None,  # backward compatibility
-    }), 200
-
-
-@suggestions_bp.route("/suggestions/all", methods=["GET"])
-def get_all_suggestions_endpoint():
-    """
-    GET /api/suggestions/all
-    Returns all tips for all supported moods.
-    Useful for frontend to preload suggestions.
-    """
-    try:
-        all_moods = get_all_supported_moods()
-        result = {}
-
-        for mood in all_moods:
-            result[mood] = get_all_suggestions(mood)
+        # Prompt AI specifically for tips
+        prompt = (
+            f"The user is feeling '{mood}'. Give them exactly 3 short, concrete, "
+            "and helpful wellness tips or CBT-based actions they can take right now. "
+            "Format the response as a simple JSON list of strings only. "
+            "Example: [\"Tip 1\", \"Tip 2\", \"Tip 3\"]"
+        )
+        
+        ai_raw = get_ai_response(prompt)
+        
+        # Try to parse JSON from AI response
+        try:
+            # Look for JSON array in the text
+            start = ai_raw.find('[')
+            end = ai_raw.rfind(']') + 1
+            if start != -1 and end != -1:
+                tips = json.loads(ai_raw[start:end])
+            else:
+                tips = [ai_raw] # Fallback to raw string as single tip
+        except:
+            tips = [ai_raw]
 
         return jsonify({
-            "supported_moods": all_moods,
-            "total_moods": len(all_moods),
-            "suggestions": result
+            "mood": mood,
+            "count": len(tips),
+            "tips": tips,
+            "source": "AI Generated"
         }), 200
 
     except Exception as e:
-        logger.error(f"[Suggestions All Error] {e}")
-        return jsonify({
-            "error": "Failed to fetch suggestions.",
-            "detail": "Please try again."
-        }), 500
-
+        logger.error(f"[AI Suggestions Error] {e}")
+        return jsonify({"error": "AI could not generate tips right now."}), 500
 
 @suggestions_bp.route("/suggestions/moods", methods=["GET"])
 def get_supported_moods():
-    """
-    GET /api/suggestions/moods
-    Returns list of all supported moods.
-    Frontend can use this to dynamically build mood picker UI.
-    """
-    moods = get_all_supported_moods()
+    """Returns list of common moods for the UI."""
     return jsonify({
-        "supported_moods": moods,
-        "total": len(moods)
+        "supported_moods": ["happy", "sad", "anxious", "angry", "stressed", "neutral", "calm", "depressed"],
+        "total": 8
     }), 200

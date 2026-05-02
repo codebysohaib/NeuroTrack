@@ -4,76 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NeuroTrack — Dashboard</title>
-  <meta name="description" content="Your personal AI mental health companion. Track moods, chat with AI, and get wellness tips." />
+  <meta name="description" content="AI mental health companion. Track moods, chat, and thrive." />
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1a73e8" />
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+      });
+    }
+  </script>
+
   <link rel="stylesheet" href="css/style.css" />
-  <style>
-    .hero {
-      background: linear-gradient(135deg, #e8f0fe 0%, #f8f9fa 60%);
-      border: 1px solid #c5d9f8;
-      border-radius: var(--radius-lg);
-      padding: 32px;
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .hero-text h1 { font-size: 1.8rem; }
-    .hero-text p { font-size: .95rem; margin-top: 6px; max-width: 480px; }
-    .hero-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .hero-art { font-size: 5rem; flex-shrink: 0; }
-
-    .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
-    .quick-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      flex: 1;
-      min-width: 180px;
-      text-decoration: none;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
-    }
-    .quick-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary); transform: translateY(-2px); }
-
-    .quick-icon { font-size: 1.6rem; width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .quick-icon.blue { background: var(--primary-lt); }
-    .quick-icon.green { background: var(--success-lt); }
-    .quick-icon.yellow { background: var(--warning-lt); }
-    .quick-icon.gray { background: var(--surface-2); }
-
-    .quick-info h3 { font-size: .95rem; }
-    .quick-info p { font-size: .8rem; margin-top: 2px; }
-
-    .mood-stat { text-align: center; padding: 12px; }
-    .mood-stat .emoji { font-size: 1.8rem; }
-
-    /* Auth state bar */
-    .auth-status-bar {
-      padding: 10px 24px;
-      background: #f8f9fa;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--text-muted);
-    }
-    .auth-status-bar .user-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -82,205 +29,215 @@
       <div class="logo-icon">🧠</div>
       <span>NeuroTrack</span>
     </a>
-    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="index.html" class="active">🏠 Dashboard</a></li>
-      <li><a href="chat.html">💬 Chat</a></li>
-      <li><a href="mood.html">📊 Mood</a></li>
-      <li><a href="suggestions.html">💡 Tips</a></li>
-      <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline" style="margin-left:10px">Login</a></li>
-    </ul>
+    
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌓</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" class="active">Dashboard</a></li>
+        <li><a href="chat.html">Chat</a></li>
+        <li><a href="mood.html">Mood</a></li>
+        <li><a href="suggestions.html">Tips</a></li>
+        <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline">Login</a></li>
+      </ul>
+    </div>
   </nav>
 
   <div class="auth-status-bar">
-    <div class="user-badge">
+    <div style="display:flex; align-items:center; gap:8px;">
       <span id="userTypeIcon">👤</span>
       <span id="userDisplayName">Guest Account</span>
     </div>
-    <div id="authActionText">Sync your data by <a href="login.html" style="color:var(--primary); font-weight:600; text-decoration:none">Logging In</a></div>
+    <div id="authActionText"></div>
   </div>
 
   <main class="main">
     <!-- Hero -->
-    <div class="hero">
-      <div class="hero-text">
-        <h1 id="welcomeTitle">Hi there 👋</h1>
-        <p>Welcome to NeuroTrack — your calm, supportive AI companion for mental wellbeing. How are you feeling today?</p>
-        <div class="hero-actions">
-          <a href="chat.html" class="btn btn-primary">💬 Start Chatting</a>
-          <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
+    <div class="card" style="margin-bottom: 24px; background: var(--primary-lt); border: none;">
+      <h1 id="welcomeTitle">Hi there 👋</h1>
+      <p style="margin-top:8px; max-width: 500px;">Welcome back to your calm space. Your journey to better mental health starts with a single step.</p>
+      <div style="margin-top:20px; display:flex; gap:12px;">
+        <a href="chat.html" class="btn btn-primary">💬 AI Chat</a>
+        <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="grid-2">
+      <!-- Line Chart -->
+      <div class="card">
+        <h3 class="card-title">Mood Trend (Last 7 Days)</h3>
+        <div class="chart-container">
+          <canvas id="moodLineChart"></canvas>
         </div>
       </div>
-      <div class="hero-art">🧘</div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <a href="chat.html" class="quick-card">
-        <div class="quick-icon blue">💬</div>
-        <div class="quick-info">
-          <h3>AI Chat</h3>
-          <p>Talk to your support companion</p>
-        </div>
-      </a>
-      <a href="mood.html" class="quick-card">
-        <div class="quick-icon green">📊</div>
-        <div class="quick-info">
-          <h3>Mood Tracker</h3>
-          <p>Log & visualise your moods</p>
-        </div>
-      </a>
-      <a href="suggestions.html" class="quick-card">
-        <div class="quick-icon yellow">💡</div>
-        <div class="quick-info">
-          <h3>Wellness Tips</h3>
-          <p>CBT-inspired daily suggestions</p>
-        </div>
-      </a>
-    </div>
-
-    <!-- Stats + Summary -->
-    <div class="grid-2" style="margin-bottom:20px">
+      <!-- Stats Summary -->
       <div class="card">
-        <div class="card-title">Your Mood Summary</div>
+        <h3 class="card-title">Summary</h3>
         <div id="summaryContent">
-          <div class="skel" style="width:60%; margin-bottom:10px"></div>
-          <div class="skel" style="width:40%"></div>
+           <div class="skel" style="width:100%; height:80px; margin-top:20px"></div>
         </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Mood Breakdown</div>
-        <div id="breakdownChart">
-          <div class="empty-state" id="breakdownEmpty">
-            <div class="empty-icon">📊</div>
-            <p>No data yet. Log your first mood!</p>
-          </div>
-        </div>
+        <div id="breakdownChart" style="margin-top:24px"></div>
       </div>
     </div>
 
-    <!-- API Status -->
-    <div class="card">
-      <div class="card-title">Service Status</div>
-      <div class="status-row">
-        <span style="font-size:.875rem;font-weight:500">NeuroTrack Backend</span>
-        <span id="apiPill" class="pill pill-gray"><span class="dot"></span> Checking…</span>
-      </div>
+    <!-- System Status (Simplified Section 3) -->
+    <div style="margin-top:40px; text-align:center;">
+      <p style="font-size:0.75rem; color:var(--text-3)">
+        <span id="apiPill" class="dot"></span> Backend Service: <span id="apiStatusText">Checking...</span>
+      </p>
     </div>
   </main>
 
-  <footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
+  <footer style="margin-top:60px; padding:24px; text-align:center; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-3)">
+    NeuroTrack · 2026 · Not a substitute for professional care.
+  </footer>
+
   <div id="toast-container"></div>
 
   <script type="module">
-    import { auth, logout, ping, getMoodSummary, getUserId, moodEmoji } from './js/api.js';
+    import { auth, logout, ping, getMoodSummary, getMoodHistory, getUserId, moodEmoji } from './js/api.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-    // ── Hamburger ────────────────────────────────────────────────────────────────
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('navLinks').classList.toggle('open');
+    // ── Theme Logic ─────────────────────────────────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      if (window.moodChart) updateChartTheme(next);
     });
 
-    // ── Auth & Dashboard Init ───────────────────────────────────────────────────
+    // ── Auth & Init ─────────────────────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
-      const authNavItem = document.getElementById('authNavItem');
       const userDisplayName = document.getElementById('userDisplayName');
       const authActionText = document.getElementById('authActionText');
+      const authNavItem = document.getElementById('authNavItem');
       const welcomeTitle = document.getElementById('welcomeTitle');
-      const userTypeIcon = document.getElementById('userTypeIcon');
 
       if (user) {
-        // Authenticated State
-        userDisplayName.textContent = user.email || user.displayName || 'Authenticated User';
-        userTypeIcon.textContent = '✅';
-        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none">Sign Out</a>`;
+        userDisplayName.textContent = user.email || 'Authenticated User';
+        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none">Logout</a>`;
         authNavItem.innerHTML = `<a href="#" id="logoutNavBtn" class="btn btn-sm btn-outline">Logout</a>`;
-        welcomeTitle.textContent = `Hi, ${user.displayName || user.email.split('@')[0]} 👋`;
-        
-        document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); handleLogout(); };
-        document.getElementById('logoutNavBtn').onclick = (e) => { e.preventDefault(); handleLogout(); };
+        welcomeTitle.textContent = `Welcome, ${user.displayName || user.email.split('@')[0]} 👋`;
+        document.getElementById('logoutBtn').onclick = handleLogout;
+        document.getElementById('logoutNavBtn').onclick = handleLogout;
       } else {
-        // Guest State
         userDisplayName.textContent = 'Guest Account (' + getUserId() + ')';
-        userTypeIcon.textContent = '👤';
-        authActionText.innerHTML = `Sync your data by <a href="login.html" style="color:var(--primary); font-weight:600; text-decoration:none">Logging In</a>`;
+        authActionText.innerHTML = `<a href="login.html" style="color:var(--primary); text-decoration:none">Sign In to Sync</a>`;
         authNavItem.innerHTML = `<a href="login.html" class="btn btn-sm btn-outline">Login</a>`;
-        welcomeTitle.textContent = `Hi there 👋`;
       }
-
-      // Load data for the current user (Guest or Authenticated)
-      loadDashboard(getUserId());
+      
+      initDashboard(getUserId());
     });
 
-    async function handleLogout() {
+    async function handleLogout(e) {
+      if(e) e.preventDefault();
+      await logout();
+      location.reload();
+    }
+
+    async function initDashboard(uid) {
+      checkPing();
       try {
-        await logout();
-        location.reload();
+        const summary = await getMoodSummary(uid);
+        const history = await getMoodHistory(uid, 7);
+        renderSummary(summary);
+        renderLineChart(history.history);
       } catch (e) {
-        console.error('Logout failed', e);
+        console.error('Dashboard load failed', e);
       }
     }
 
     async function checkPing() {
-      const pill = document.getElementById('apiPill');
       try {
         await ping();
-        pill.className = 'pill pill-green';
-        pill.innerHTML = '<span class="dot"></span> Online';
+        document.getElementById('apiPill').style.background = 'var(--success)';
+        document.getElementById('apiStatusText').textContent = 'Online';
       } catch {
-        pill.className = 'pill pill-red';
-        pill.innerHTML = '<span class="dot"></span> Offline';
-      }
-    }
-
-    async function loadDashboard(uid) {
-      if (!uid) return;
-      try {
-        const data = await getMoodSummary(uid);
-        renderSummary(data);
-        renderChart(data.breakdown || {});
-      } catch (e) {
-        document.getElementById('summaryContent').innerHTML = `<p style="color:var(--error);font-size:.875rem">Could not load summary.</p>`;
+        document.getElementById('apiPill').style.background = 'var(--error)';
+        document.getElementById('apiStatusText').textContent = 'Offline';
       }
     }
 
     function renderSummary(d) {
       const el = document.getElementById('summaryContent');
       if (!d.total_entries) {
-        el.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No mood entries yet.</p></div>`;
+        el.innerHTML = `<p>No data yet. Log your mood to see trends!</p>`;
         return;
       }
       el.innerHTML = `
-        <div class="grid-3" style="margin-bottom:0">
-          <div class="mood-stat">
-            <div class="stat-number">${d.total_entries}</div>
-            <div class="stat-label">Total Entries</div>
+        <div class="grid-3">
+          <div style="text-align:center">
+            <div style="font-size:1.5rem; font-weight:700">${d.total_entries}</div>
+            <div style="font-size:0.7rem; color:var(--text-3)">ENTRIES</div>
           </div>
-          <div class="mood-stat">
-            <div class="emoji">${moodEmoji(d.latest_mood)}</div>
-            <div class="stat-label">Latest</div>
+          <div style="text-align:center">
+            <div style="font-size:1.5rem">${moodEmoji(d.latest_mood)}</div>
+            <div style="font-size:0.7rem; color:var(--text-3)">LATEST</div>
           </div>
-          <div class="mood-stat">
-            <div class="emoji">${moodEmoji(d.most_common_mood)}</div>
-            <div class="stat-label">Common</div>
+          <div style="text-align:center">
+            <div style="font-size:1.5rem">${moodEmoji(d.most_common_mood)}</div>
+            <div style="font-size:0.7rem; color:var(--text-3)">USUAL</div>
           </div>
         </div>`;
     }
 
-    function renderChart(breakdown) {
-      const el = document.getElementById('breakdownChart');
-      const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]);
-      if (!entries.length) return;
-      const max = entries[0][1];
-      el.innerHTML = `<div class="bar-chart">${entries.map(([mood, cnt]) => `
-        <div class="bar-row">
-          <span class="bar-label">${moodEmoji(mood)} ${mood}</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cnt / max * 100)}%"></div></div>
-          <span class="bar-count">${cnt}</span>
-        </div>`).join('')}</div>`;
+    // ── Charting ────────────────────────────────────────────────────────────────
+    let moodChart;
+    const MOOD_SCORES = { happy: 5, calm: 4, neutral: 3, anxious: 2, stressed: 2, sad: 1, angry: 1, depressed: 0 };
+
+    function renderLineChart(history) {
+      const ctx = document.getElementById('moodLineChart').getContext('2d');
+      const data = history.reverse(); // oldest to newest
+      
+      const labels = data.map(i => new Date(i.timestamp).toLocaleDateString([], {weekday:'short'}));
+      const values = data.map(i => MOOD_SCORES[i.mood] || 3);
+
+      if (moodChart) moodChart.destroy();
+
+      moodChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Mood Level',
+            data: values,
+            borderColor: '#1a73e8',
+            backgroundColor: 'rgba(26, 115, 232, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 5, ticks: { stepSize: 1, callback: v => ['Depressed', 'Sad', 'Anxious', 'Neutral', 'Calm', 'Happy'][v] || '' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+      updateChartTheme(document.documentElement.getAttribute('data-theme'));
     }
 
-    checkPing();
+    function updateChartTheme(theme) {
+      if (!moodChart) return;
+      const isDark = theme === 'dark';
+      const color = isDark ? '#e8eaed' : '#202124';
+      const grid = isDark ? '#3c4043' : '#dadce0';
+      
+      moodChart.options.scales.x.ticks.color = color;
+      moodChart.options.scales.y.ticks.color = color;
+      moodChart.options.scales.y.grid.color = grid;
+      moodChart.update();
+    }
   </script>
 </body>
 </html>

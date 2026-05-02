@@ -1,0 +1,21 @@
+{
+  "name": "NeuroTrack Mental Health",
+  "short_name": "NeuroTrack",
+  "description": "Your AI-powered mental health companion.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1077/1077114.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1077/1077114.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
