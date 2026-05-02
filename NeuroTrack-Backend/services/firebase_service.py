@@ -2,11 +2,13 @@
 Firebase Firestore service.
 Singleton pattern — initializes once, reuses connection across all requests.
 Handles missing credentials gracefully to prevent full app crash.
+Supports both Environment Variable (Render) and File Path (Local) authentication.
 """
 
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+import json
 import logging
 from dotenv import load_dotenv
 
@@ -30,10 +32,35 @@ def _initialize_firebase() -> bool:
     if _initialized:
         return True
 
+    # METHOD 1: Check for JSON string in Environment Variable (Best for Render/Production)
+    firebase_env = os.getenv("FIREBASE_JSON")
+    
+    if firebase_env:
+        try:
+            # Fix any escaped newlines caused by copy-pasting
+            firebase_env = firebase_env.replace('\\n', '\n')
+            cred_dict = json.loads(firebase_env)
+            
+            if not firebase_admin._apps:
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+                
+            _initialized = True
+            _init_error = None
+            logger.info("[Firebase Init] Successfully initialized Firebase Admin SDK via Environment Variable.")
+            return True
+            
+        except Exception as e:
+            _init_error = f"Failed to parse FIREBASE_JSON: {e}"
+            logger.error(f"[Firebase Init] {_init_error}")
+            return False
+
+    # METHOD 2: Fallback to File Path (Best for Local Development)
+    logger.info("[Firebase Init] FIREBASE_JSON not found. Falling back to file path.")
     cred_path = os.getenv("FIREBASE_CREDENTIALS_PATH", "serviceAccountKey.json")
 
     if not cred_path:
-        _init_error = "FIREBASE_CREDENTIALS_PATH is not set."
+        _init_error = "FIREBASE_CREDENTIALS_PATH and FIREBASE_JSON are both missing."
         logger.error(f"[Firebase Init] {_init_error}")
         return False
 
@@ -49,12 +76,12 @@ def _initialize_firebase() -> bool:
 
         _initialized = True
         _init_error = None
-        logger.info("[Firebase Init] Successfully initialized Firebase Admin SDK.")
+        logger.info(f"[Firebase Init] Successfully initialized Firebase Admin SDK from {cred_path}.")
         return True
 
     except Exception as e:
         _init_error = str(e)
-        logger.error(f"[Firebase Init] Failed to initialize: {e}")
+        logger.error(f"[Firebase Init] Failed to initialize from file: {e}")
         return False
 
 
