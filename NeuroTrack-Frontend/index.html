@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NeuroTrack — Dashboard</title>
   <meta name="description" content="AI mental health companion. Track moods, chat, and thrive." />
-  
-  <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#1a73e8" />
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" />
   <link rel="manifest" href="manifest.json" />
-
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -18,80 +15,83 @@
       });
     }
   </script>
-
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-brand">
-      <div class="logo-icon">🧠</div>
-      <span>NeuroTrack</span>
-    </a>
-    
-    <div style="display: flex; align-items: center; gap: 16px;">
-      <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌓</button>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html" class="active">Dashboard</a></li>
-        <li><a href="chat.html">Chat</a></li>
-        <li><a href="mood.html">Mood</a></li>
-        <li><a href="suggestions.html">Tips</a></li>
-        <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline">Login</a></li>
-      </ul>
+    <div class="container nav-content">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-icon">🧠</div>
+        <span>NeuroTrack</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">🌓</button>
+        <ul class="nav-links">
+          <li><a href="index.html" class="active">Dashboard</a></li>
+          <li><a href="chat.html">Chat</a></li>
+          <li><a href="mood.html">Mood</a></li>
+          <li><a href="suggestions.html">Tips</a></li>
+          <li id="authNavItem"><a href="login.html" class="btn btn-sm btn-outline">Login</a></li>
+        </ul>
+      </div>
     </div>
   </nav>
 
   <div class="auth-status-bar">
-    <div style="display:flex; align-items:center; gap:8px;">
-      <span id="userTypeIcon">👤</span>
-      <span id="userDisplayName">Guest Account</span>
+    <div class="container auth-status-content">
+      <div class="user-badge">
+        <span id="userTypeIcon">👤</span>
+        <span id="userDisplayName">Guest Account</span>
+      </div>
+      <div id="authActionText"></div>
     </div>
-    <div id="authActionText"></div>
   </div>
 
-  <main class="main">
-    <!-- Hero -->
-    <div class="card" style="margin-bottom: 24px; background: var(--primary-lt); border: none;">
-      <h1 id="welcomeTitle">Hi there 👋</h1>
-      <p style="margin-top:8px; max-width: 500px;">Welcome back to your calm space. Your journey to better mental health starts with a single step.</p>
-      <div style="margin-top:20px; display:flex; gap:12px;">
-        <a href="chat.html" class="btn btn-primary">💬 AI Chat</a>
-        <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
+  <main class="container main">
+    <!-- Hero Section -->
+    <header class="hero">
+      <div class="hero-text">
+        <h1 id="welcomeTitle">Hi there 👋</h1>
+        <p>Your safe space for emotional tracking and AI-guided support. Let's see how you're trending today.</p>
+        <div style="margin-top:24px; display:flex; gap:12px;">
+          <a href="chat.html" class="btn btn-primary">💬 AI Chat</a>
+          <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
+        </div>
       </div>
-    </div>
+      <div style="font-size: 5rem; line-height: 1;">🧘</div>
+    </header>
 
-    <!-- Analytics Section -->
-    <div class="grid-2">
-      <!-- Line Chart -->
-      <div class="card">
-        <h3 class="card-title">Mood Trend (Last 7 Days)</h3>
+    <!-- Content Grid -->
+    <div class="grid grid-2">
+      <!-- Chart Card -->
+      <section class="card">
+        <h3 class="card-title">Weekly Mood Trend</h3>
         <div class="chart-container">
           <canvas id="moodLineChart"></canvas>
         </div>
-      </div>
+      </section>
 
-      <!-- Stats Summary -->
-      <div class="card">
-        <h3 class="card-title">Summary</h3>
-        <div id="summaryContent">
-           <div class="skel" style="width:100%; height:80px; margin-top:20px"></div>
+      <!-- Stats Card -->
+      <section class="card">
+        <h3 class="card-title">Quick Stats</h3>
+        <div id="summaryContent" style="flex: 1; display: flex; align-items: center; justify-content: center;">
+           <div style="width:100%; text-align:center;">Checking data...</div>
         </div>
-        <div id="breakdownChart" style="margin-top:24px"></div>
-      </div>
+        <div id="breakdownChart" style="margin-top: var(--space-lg);"></div>
+      </section>
     </div>
 
-    <!-- System Status (Simplified Section 3) -->
-    <div style="margin-top:40px; text-align:center;">
-      <p style="font-size:0.75rem; color:var(--text-3)">
-        <span id="apiPill" class="dot"></span> Backend Service: <span id="apiStatusText">Checking...</span>
-      </p>
+    <!-- Health Footer -->
+    <div style="margin-top: var(--space-xxl); padding-top: var(--space-lg); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.75rem;">
+      <div>NeuroTrack © 2026</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="apiPill" style="width:8px; height:8px; border-radius:50%; background: #ccc;"></span>
+        Service: <span id="apiStatusText">Checking...</span>
+      </div>
     </div>
   </main>
-
-  <footer style="margin-top:60px; padding:24px; text-align:center; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-3)">
-    NeuroTrack · 2026 · Not a substitute for professional care.
-  </footer>
 
   <div id="toast-container"></div>
 
@@ -99,7 +99,7 @@
     import { auth, logout, ping, getMoodSummary, getMoodHistory, getUserId, moodEmoji } from './js/api.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-    // ── Theme Logic ─────────────────────────────────────────────────────────────
+    // ── Theme Manager ─────────────────────────────────────────────────────────
     const themeToggle = document.getElementById('themeToggle');
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -112,45 +112,38 @@
       if (window.moodChart) updateChartTheme(next);
     });
 
-    // ── Auth & Init ─────────────────────────────────────────────────────────────
+    // ── Dashboard Core ─────────────────────────────────────────────────────────
     onAuthStateChanged(auth, (user) => {
+      const authNavItem = document.getElementById('authNavItem');
       const userDisplayName = document.getElementById('userDisplayName');
       const authActionText = document.getElementById('authActionText');
-      const authNavItem = document.getElementById('authNavItem');
       const welcomeTitle = document.getElementById('welcomeTitle');
 
       if (user) {
         userDisplayName.textContent = user.email || 'Authenticated User';
-        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none">Logout</a>`;
+        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none; font-weight:600">Logout</a>`;
         authNavItem.innerHTML = `<a href="#" id="logoutNavBtn" class="btn btn-sm btn-outline">Logout</a>`;
-        welcomeTitle.textContent = `Welcome, ${user.displayName || user.email.split('@')[0]} 👋`;
+        welcomeTitle.textContent = `Welcome back, ${user.displayName || user.email.split('@')[0]} 👋`;
         document.getElementById('logoutBtn').onclick = handleLogout;
         document.getElementById('logoutNavBtn').onclick = handleLogout;
       } else {
-        userDisplayName.textContent = 'Guest Account (' + getUserId() + ')';
-        authActionText.innerHTML = `<a href="login.html" style="color:var(--primary); text-decoration:none">Sign In to Sync</a>`;
+        userDisplayName.textContent = 'Guest Mode (' + getUserId() + ')';
+        authActionText.innerHTML = `<a href="login.html" style="color:var(--primary); text-decoration:none; font-weight:600">Login to Sync</a>`;
         authNavItem.innerHTML = `<a href="login.html" class="btn btn-sm btn-outline">Login</a>`;
+        welcomeTitle.textContent = `Hello there 👋`;
       }
-      
       initDashboard(getUserId());
     });
 
-    async function handleLogout(e) {
-      if(e) e.preventDefault();
-      await logout();
-      location.reload();
-    }
+    async function handleLogout(e) { if(e) e.preventDefault(); await logout(); location.reload(); }
 
     async function initDashboard(uid) {
       checkPing();
       try {
-        const summary = await getMoodSummary(uid);
-        const history = await getMoodHistory(uid, 7);
+        const [summary, history] = await Promise.all([getMoodSummary(uid), getMoodHistory(uid, 7)]);
         renderSummary(summary);
-        renderLineChart(history.history);
-      } catch (e) {
-        console.error('Dashboard load failed', e);
-      }
+        renderLineChart(history.history || []);
+      } catch (e) { console.error('Dashboard Error', e); }
     }
 
     async function checkPing() {
@@ -167,51 +160,50 @@
     function renderSummary(d) {
       const el = document.getElementById('summaryContent');
       if (!d.total_entries) {
-        el.innerHTML = `<p>No data yet. Log your mood to see trends!</p>`;
+        el.innerHTML = `<div style="color:var(--text-muted)">No data found for this period.</div>`;
         return;
       }
       el.innerHTML = `
-        <div class="grid-3">
+        <div style="display:flex; justify-content:space-around; width:100%;">
           <div style="text-align:center">
-            <div style="font-size:1.5rem; font-weight:700">${d.total_entries}</div>
-            <div style="font-size:0.7rem; color:var(--text-3)">ENTRIES</div>
+            <div style="font-size:1.75rem; font-weight:700">${d.total_entries}</div>
+            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Entries</div>
           </div>
           <div style="text-align:center">
-            <div style="font-size:1.5rem">${moodEmoji(d.latest_mood)}</div>
-            <div style="font-size:0.7rem; color:var(--text-3)">LATEST</div>
+            <div style="font-size:1.75rem">${moodEmoji(d.latest_mood)}</div>
+            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Latest</div>
           </div>
           <div style="text-align:center">
-            <div style="font-size:1.5rem">${moodEmoji(d.most_common_mood)}</div>
-            <div style="font-size:0.7rem; color:var(--text-3)">USUAL</div>
+            <div style="font-size:1.75rem">${moodEmoji(d.most_common_mood)}</div>
+            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Common</div>
           </div>
         </div>`;
     }
 
-    // ── Charting ────────────────────────────────────────────────────────────────
+    // ── Chart.js Implementation ───────────────────────────────────────────────
     let moodChart;
     const MOOD_SCORES = { happy: 5, calm: 4, neutral: 3, anxious: 2, stressed: 2, sad: 1, angry: 1, depressed: 0 };
 
     function renderLineChart(history) {
       const ctx = document.getElementById('moodLineChart').getContext('2d');
-      const data = history.reverse(); // oldest to newest
-      
-      const labels = data.map(i => new Date(i.timestamp).toLocaleDateString([], {weekday:'short'}));
-      const values = data.map(i => MOOD_SCORES[i.mood] || 3);
+      const sortedHistory = [...history].reverse();
+      const labels = sortedHistory.map(i => new Date(i.timestamp).toLocaleDateString([], {weekday:'short'}));
+      const values = sortedHistory.map(i => MOOD_SCORES[i.mood] || 3);
 
       if (moodChart) moodChart.destroy();
-
       moodChart = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
           datasets: [{
-            label: 'Mood Level',
             data: values,
             borderColor: '#1a73e8',
-            backgroundColor: 'rgba(26, 115, 232, 0.1)',
+            backgroundColor: 'rgba(26, 115, 232, 0.08)',
             fill: true,
             tension: 0.4,
-            pointRadius: 4
+            pointRadius: 5,
+            pointBackgroundColor: '#1a73e8',
+            borderWidth: 3
           }]
         },
         options: {
@@ -224,15 +216,14 @@
           }
         }
       });
+      window.moodChart = moodChart;
       updateChartTheme(document.documentElement.getAttribute('data-theme'));
     }
 
     function updateChartTheme(theme) {
       if (!moodChart) return;
-      const isDark = theme === 'dark';
-      const color = isDark ? '#e8eaed' : '#202124';
-      const grid = isDark ? '#3c4043' : '#dadce0';
-      
+      const color = theme === 'dark' ? '#e8eaed' : '#1f1f1f';
+      const grid = theme === 'dark' ? '#3c4043' : '#e0e0e0';
       moodChart.options.scales.x.ticks.color = color;
       moodChart.options.scales.y.ticks.color = color;
       moodChart.options.scales.y.grid.color = grid;

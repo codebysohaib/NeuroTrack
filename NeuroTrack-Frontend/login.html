@@ -6,58 +6,72 @@
   <title>NeuroTrack — Login</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .auth-container {
-      max-width: 400px;
-      margin: 60px auto;
-      padding: 32px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-md);
-      text-align: center;
+    .auth-wrapper {
+      min-height: calc(100vh - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
     }
-    .auth-header h1 { font-size: 1.5rem; margin-bottom: 8px; }
-    .auth-header p { font-size: 0.875rem; color: #5f6368; margin-bottom: 24px; }
+    .auth-card {
+      max-width: 420px;
+      width: 100%;
+      padding: var(--space-xl);
+    }
+    .auth-header { text-align: center; margin-bottom: 32px; }
+    .auth-header h1 { font-size: 1.75rem; margin-bottom: 8px; }
+    .auth-header p { color: var(--text-secondary); font-size: 0.9375rem; }
     
-    .auth-form { text-align: left; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
-    .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; }
-
-    .auth-toggle { margin-top: 24px; font-size: 0.85rem; }
-    .auth-toggle a { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+    .toggle-link {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .toggle-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .toggle-link a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-brand">
-      <div class="logo-icon">🧠</div>
-      <span>NeuroTrack</span>
-    </a>
+    <div class="container nav-content">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-icon">🧠</div>
+        <span>NeuroTrack</span>
+      </a>
+      <button class="theme-toggle" id="themeToggle">🌓</button>
+    </div>
   </nav>
 
-  <div class="auth-container">
-    <div class="auth-header">
-      <h1 id="authTitle">Welcome Back</h1>
-      <p id="authSub">Sign in to sync your moods and data.</p>
-    </div>
-
-    <form class="auth-form" id="authForm">
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" id="email" placeholder="email@example.com" required>
+  <div class="auth-wrapper">
+    <div class="card auth-card">
+      <div class="auth-header">
+        <h1 id="authTitle">Welcome Back</h1>
+        <p id="authSub">Sign in to your NeuroTrack account.</p>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="••••••••" required>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitBtn">Sign In</button>
-    </form>
 
-    <div class="auth-toggle">
-      <span id="toggleText">Don't have an account?</span>
-      <a id="toggleMode">Sign Up</a>
+      <form id="authForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;" id="submitBtn">Sign In</button>
+      </form>
+
+      <div class="toggle-link">
+        <span id="toggleText">Don't have an account?</span>
+        <a id="toggleMode">Create one</a>
+      </div>
     </div>
   </div>
 
@@ -67,6 +81,14 @@
     import { auth, loginEmail, signupEmail, showToast, setLoading } from './js/api.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
+    // Theme Toggle
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    document.getElementById('themeToggle').onclick = () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    };
+
     let isSignup = false;
     const form = document.getElementById('authForm');
     const toggleBtn = document.getElementById('toggleMode');
@@ -74,39 +96,29 @@
     const sub = document.getElementById('authSub');
     const submitBtn = document.getElementById('submitBtn');
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) window.location.href = 'index.html';
-    });
+    onAuthStateChanged(auth, (user) => { if (user) window.location.href = 'index.html'; });
 
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.onclick = () => {
       isSignup = !isSignup;
       title.textContent = isSignup ? 'Create Account' : 'Welcome Back';
-      sub.textContent = isSignup ? 'Start your mental health journey today.' : 'Sign in to sync your moods and data.';
-      submitBtn.textContent = isSignup ? 'Create Account' : 'Sign In';
+      sub.textContent = isSignup ? 'Start your journey to better mental health.' : 'Sign in to your NeuroTrack account.';
+      submitBtn.textContent = isSignup ? 'Get Started' : 'Sign In';
       document.getElementById('toggleText').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
-      toggleBtn.textContent = isSignup ? 'Sign In' : 'Sign Up';
-    });
+      toggleBtn.textContent = isSignup ? 'Sign In' : 'Create one';
+    };
 
-    form.addEventListener('submit', async (e) => {
+    form.onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value;
       const pass = document.getElementById('password').value;
-      
       setLoading(submitBtn, true);
       try {
-        if (isSignup) {
-          await signupEmail(email, pass);
-          showToast('Account created!', 'success');
-        } else {
-          await loginEmail(email, pass);
-        }
+        if (isSignup) { await signupEmail(email, pass); showToast('Account created!', 'success'); }
+        else { await loginEmail(email, pass); }
         window.location.href = 'index.html';
-      } catch (e) {
-        showToast(e.message, 'error');
-      } finally {
-        setLoading(submitBtn, false);
-      }
-    });
+      } catch (e) { showToast(e.message, 'error'); }
+      finally { setLoading(submitBtn, false); }
+    };
   </script>
 </body>
 </html>

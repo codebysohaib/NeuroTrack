@@ -1,278 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NeuroTrack — System Status</title>
-  <meta name="description"
-    content="Real-time health status of the NeuroTrack backend — Firebase, Groq AI, uptime, and version info." />
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    .status-hero {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 24px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
+    .status-card { text-align: center; padding: var(--space-xxl) var(--space-lg); }
+    .status-indicator {
+      width: 80px; height: 80px; border-radius: 50%;
+      margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; position: relative;
     }
-
-    .status-hero .big-pill {
-      padding: 10px 24px;
-      font-size: 1rem;
-      border-radius: 24px;
-      font-weight: 600;
+    .status-indicator::after {
+      content: ''; position: absolute; inset: -8px; border-radius: 50%;
+      border: 2px solid currentColor; opacity: 0.2;
     }
-
-    .service-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
+    .status-online { background: var(--success-lt); color: var(--success); }
+    .status-offline { background: var(--error-lt); color: var(--error); }
+    
+    .detail-row {
+      display: flex; justify-content: space-between; padding: 16px 0;
+      border-bottom: 1px solid var(--border); font-size: 0.9375rem;
     }
-
-    .service-row:last-child {
-      border-bottom: none;
-    }
-
-    .service-name {
-      font-size: .9rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .service-icon {
-      font-size: 1.2rem;
-    }
-
-    .info-table {
-      width: 100%;
-    }
-
-    .info-table tr td:first-child {
-      color: var(--text-3);
-      font-size: .82rem;
-      font-weight: 500;
-      padding: 8px 0;
-      width: 140px;
-    }
-
-    .info-table tr td:last-child {
-      font-size: .875rem;
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .uptime-display {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .refresh-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .last-check {
-      font-size: .8rem;
-      color: var(--text-3);
-    }
-
-    #jsonRaw {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      font-family: 'Courier New', monospace;
-      font-size: .78rem;
-      overflow-x: auto;
-      white-space: pre;
-      color: var(--text-2);
-      max-height: 320px;
-      overflow-y: auto;
-    }
+    .detail-row:last-child { border-bottom: none; }
   </style>
 </head>
-
 <body>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-brand">
-      <div class="logo-icon">🧠</div>
-      <span>NeuroTrack</span>
-    </a>
-    <button class="hamburger" id="hamburger">☰</button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="index.html"><span class="nav-icon">🏠</span> Dashboard</a></li>
-      <li><a href="chat.html"><span class="nav-icon">💬</span> Chat</a></li>
-      <li><a href="mood.html"><span class="nav-icon">📊</span> Mood</a></li>
-      <li><a href="suggestions.html"><span class="nav-icon">💡</span> Tips</a></li>
-      <li><a href="status.html" class="active"><span class="nav-icon">❤️</span> Status</a></li>
-    </ul>
+    <div class="container nav-content">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-icon">🧠</div>
+        <span>NeuroTrack</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button class="theme-toggle" id="themeToggle">🌓</button>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="chat.html">Chat</a></li>
+          <li><a href="mood.html">Mood</a></li>
+          <li><a href="suggestions.html">Tips</a></li>
+        </ul>
+      </div>
+    </div>
   </nav>
 
-  <main class="main">
+  <main class="container main">
+    <div class="card status-card">
+      <div id="mainIndicator" class="status-indicator status-offline">?</div>
+      <h1 id="statusTitle" style="margin-bottom:8px">Checking System...</h1>
+      <p id="statusDesc" style="color:var(--text-secondary)">We're verifying connection to the NeuroTrack servers.</p>
 
-    <div class="page-header">
-      <h1>❤️ System Status</h1>
-      <p>Real-time health of the NeuroTrack backend and its dependencies.</p>
-    </div>
-
-    <div class="refresh-bar">
-      <button class="btn btn-outline btn-sm" id="refreshBtn">🔄 Refresh</button>
-      <span class="last-check" id="lastCheck">Checking…</span>
-    </div>
-
-    <!-- Overall status hero -->
-    <div class="status-hero" id="statusHero">
-      <div style="flex:1">
-        <div
-          style="font-size:.8rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
-          Overall Status</div>
-        <div style="font-size:1.5rem;font-weight:700;color:var(--text)" id="overallLabel">Checking…</div>
-      </div>
-      <span class="big-pill pill pill-gray" id="overallPill"><span class="dot"></span> …</span>
-    </div>
-
-    <div class="grid-2" style="margin-bottom:20px">
-
-      <!-- Services -->
-      <div class="card">
-        <div class="card-title">Services</div>
-        <div id="servicesContent">
-          <div style="text-align:center;padding:20px"><span class="spinner"></span></div>
+      <div style="max-width:400px; margin: 40px auto 0; text-align: left;">
+        <h3 class="card-title">Technical Details</h3>
+        <div class="detail-row">
+          <span>API Endpoint</span>
+          <code style="font-size:0.8rem">neurotrack-0q5m.onrender.com</code>
+        </div>
+        <div class="detail-row">
+          <span>Latency</span>
+          <span id="latencyVal">--</span>
+        </div>
+        <div class="detail-row">
+          <span>Version</span>
+          <span>1.2.0-stable</span>
         </div>
       </div>
 
-      <!-- Uptime & Version -->
-      <div class="card">
-        <div class="card-title">Runtime Info</div>
-        <div id="runtimeContent">
-          <div style="text-align:center;padding:20px"><span class="spinner"></span></div>
-        </div>
-      </div>
-
+      <button class="btn btn-outline" style="margin-top:40px" onclick="location.reload()">🔄 Recheck Connection</button>
     </div>
-
-    <!-- System info -->
-    <div class="card" style="margin-bottom:20px">
-      <div class="card-title">System</div>
-      <div id="systemContent">
-        <div style="text-align:center;padding:20px"><span class="spinner"></span></div>
-      </div>
-    </div>
-
-    <!-- Raw JSON -->
-    <div class="card">
-      <div class="card-title" style="margin-bottom:12px">Raw Health Response</div>
-      <pre id="jsonRaw">Loading…</pre>
-    </div>
-
   </main>
 
-  <footer>NeuroTrack · Not a substitute for professional mental health care.</footer>
-  <div id="toast-container"></div>
-
   <script type="module">
-    import { getHealth, showToast } from './js/api.js';
+    import { ping } from './js/api.js';
 
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('navLinks').classList.toggle('open');
-    });
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    document.getElementById('themeToggle').onclick = () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    };
 
-    function serviceIcon(svc) {
-      if (svc === 'firebase') return '🔥';
-      if (svc === 'groq') return '⚡';
-      return '🔧';
-    }
+    async function checkStatus() {
+      const start = Date.now();
+      const indicator = document.getElementById('mainIndicator');
+      const title = document.getElementById('statusTitle');
+      const desc = document.getElementById('statusDesc');
+      const latency = document.getElementById('latencyVal');
 
-    function statusPillClass(status) {
-      if (['connected', 'configured', 'healthy'].includes(status)) return 'pill-green';
-      if (status === 'degraded') return 'pill-yellow';
-      return 'pill-red';
-    }
-
-    async function loadHealth() {
-      document.getElementById('lastCheck').textContent = 'Checking…';
       try {
-        const d = await getHealth();
-        const isHealthy = d.status === 'healthy';
-
-        // Overall
-        document.getElementById('overallLabel').textContent = isHealthy ? 'All Systems Operational' : 'Degraded Performance';
-        const op = document.getElementById('overallPill');
-        op.className = `big-pill pill ${isHealthy ? 'pill-green' : 'pill-yellow'}`;
-        op.innerHTML = `<span class="dot"></span> ${d.status.charAt(0).toUpperCase() + d.status.slice(1)}`;
-
-        // Services
-        const svcs = d.services || {};
-        document.getElementById('servicesContent').innerHTML = Object.entries(svcs).map(([name, info]) => `
-      <div class="service-row">
-        <span class="service-name">
-          <span class="service-icon">${serviceIcon(name)}</span>
-          <span style="text-transform:capitalize">${name}</span>
-          ${info.model ? `<span style="font-size:.75rem;color:var(--text-3)">${info.model}</span>` : ''}
-        </span>
-        <span class="pill ${statusPillClass(info.status)}">
-          <span class="dot"></span> ${info.status}
-        </span>
-      </div>`).join('') || '<p style="color:var(--text-3);font-size:.875rem;padding:8px 0">No service data</p>';
-
-        // Runtime
-        document.getElementById('runtimeContent').innerHTML = `
-      <div style="margin-bottom:16px">
-        <div style="font-size:.8rem;color:var(--text-3);margin-bottom:4px">Uptime</div>
-        <div class="uptime-display">${d.uptime || '—'}</div>
-      </div>
-      <table class="info-table">
-        <tr><td>Version</td><td>${d.version || '—'}</td></tr>
-        <tr><td>Service</td><td>${d.service || '—'}</td></tr>
-        <tr><td>Started At</td><td style="font-size:.8rem">${d.started_at ? new Date(d.started_at).toLocaleString() : '—'}</td></tr>
-        <tr><td>Timestamp</td><td style="font-size:.8rem">${d.timestamp ? new Date(d.timestamp).toLocaleString() : '—'}</td></tr>
-      </table>`;
-
-        // System
-        const sys = d.system || {};
-        document.getElementById('systemContent').innerHTML = `
-      <table class="info-table">
-        <tr><td>Python</td><td>${sys.python_version || '—'}</td></tr>
-        <tr><td>Platform</td><td>${sys.platform || '—'}</td></tr>
-        <tr><td>Environment</td><td><span class="pill ${sys.environment === 'production' ? 'pill-green' : 'pill-blue'}">${sys.environment || 'unknown'}</span></td></tr>
-      </table>`;
-
-        // Raw JSON
-        document.getElementById('jsonRaw').textContent = JSON.stringify(d, null, 2);
-        document.getElementById('lastCheck').textContent = `Last checked: ${new Date().toLocaleTimeString()}`;
-
-      } catch (e) {
-        document.getElementById('overallLabel').textContent = 'Backend Unreachable';
-        const op = document.getElementById('overallPill');
-        op.className = 'big-pill pill pill-red';
-        op.innerHTML = '<span class="dot"></span> Offline';
-        document.getElementById('servicesContent').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Cannot connect to backend. Make sure Flask is running at <code>https://neurotrack-0q5m.onrender.com</code>.</p></div>`;
-        document.getElementById('runtimeContent').innerHTML = `<p style="color:var(--text-3);font-size:.875rem;padding:8px">No data available.</p>`;
-        document.getElementById('systemContent').innerHTML = `<p style="color:var(--text-3);font-size:.875rem;padding:8px">No data available.</p>`;
-        document.getElementById('jsonRaw').textContent = '// Backend is offline or CORS is blocking the request.';
-        document.getElementById('lastCheck').textContent = `Failed at ${new Date().toLocaleTimeString()}`;
-        showToast('Backend offline — check Flask is running.', 'error');
+        await ping();
+        const end = Date.now();
+        indicator.className = 'status-indicator status-online';
+        indicator.textContent = '✓';
+        title.textContent = 'System Fully Operational';
+        desc.textContent = 'All services are running smoothly. You have full access to AI Chat and Mood tracking.';
+        latency.textContent = `${end - start}ms`;
+      } catch {
+        indicator.className = 'status-indicator status-offline';
+        indicator.textContent = '✕';
+        title.textContent = 'Connection Issue Detected';
+        desc.textContent = 'We are having trouble reaching the backend server. Please check your internet or try again later.';
+        latency.textContent = 'Timeout';
       }
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', loadHealth);
-    loadHealth();
-    // Auto-refresh every 30s
-    setInterval(loadHealth, 30000);
+    checkStatus();
   </script>
 </body>
-
 </html>

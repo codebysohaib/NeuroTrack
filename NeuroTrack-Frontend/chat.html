@@ -1,429 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NeuroTrack — AI Chat</title>
-  <meta name="description"
-    content="Chat with NeuroTrack, your CBT-style mental health support companion powered by LLaMA 3.3." />
+  <meta name="description" content="Safe, judgement-free AI support." />
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    .chat-layout {
+    .chat-container {
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 60px - 40px);
+      height: calc(100vh - 200px);
+      min-height: 400px;
     }
-
     .chat-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
-      flex-shrink: 0;
-    }
-
-    .chat-header-left {
-      display: flex;
       align-items: center;
-      gap: 12px;
+      background: var(--surface);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
-
-    .ai-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: var(--primary-lt);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      border: 2px solid var(--primary);
-    }
-
-    .chat-window {
+    .chat-messages {
       flex: 1;
       overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
       background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
+    }
+    .chat-input-area {
       padding: 20px;
-      margin-bottom: 16px;
-      min-height: 0;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
-
-    .chat-input-bar {
+    .input-wrapper {
       display: flex;
-      gap: 10px;
-      align-items: flex-end;
-      flex-shrink: 0;
+      gap: 12px;
+      background: var(--surface-2);
+      padding: 8px;
+      border-radius: 28px;
+      border: 1px solid var(--border);
     }
-
-    .chat-input-bar textarea {
+    .input-wrapper textarea {
       flex: 1;
-      min-height: 48px;
-      max-height: 140px;
-      border-radius: 24px;
-      padding: 12px 20px;
-      font-size: .9rem;
-      resize: none;
-      line-height: 1.5;
-    }
-
-    .mood-ctx {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-      margin-bottom: 10px;
-    }
-
-    .mood-ctx select {
-      width: auto;
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: .82rem;
-    }
-
-    .mood-ctx label {
-      font-size: .82rem;
-      color: var(--text-2);
-      white-space: nowrap;
-    }
-
-    .thinking-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .thinking-dots span {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-3);
-      margin: 0 2px;
-      animation: bounce .9s ease infinite;
-    }
-
-    .thinking-dots span:nth-child(2) {
-      animation-delay: .15s;
-    }
-
-    .thinking-dots span:nth-child(3) {
-      animation-delay: .3s;
-    }
-
-    @keyframes bounce {
-
-      0%,
-      80%,
-      100% {
-        transform: translateY(0);
-      }
-
-      40% {
-        transform: translateY(-7px);
-      }
-    }
-
-    .thinking-bubble {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 12px 16px;
-      border-radius: var(--radius-lg);
-      border-bottom-left-radius: 4px;
-    }
-
-    .char-count {
-      font-size: .75rem;
-      color: var(--text-3);
-      text-align: right;
-      margin-top: 4px;
-    }
-
-    .char-count.warn {
-      color: var(--error);
-    }
-
-    .welcome-msg {
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .welcome-msg .big-emoji {
-      font-size: 3rem;
-      margin-bottom: 12px;
-    }
-
-    .welcome-msg h3 {
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-
-    .welcome-msg p {
-      font-size: .875rem;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-    .quick-prompts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 20px;
-    }
-
-    .quick-prompt {
+      border: none;
+      background: transparent;
       padding: 8px 16px;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: .82rem;
-      background: var(--surface);
-      cursor: pointer;
-      transition: var(--transition);
-      color: var(--text-2);
+      resize: none;
+      max-height: 120px;
+      font-size: 0.9375rem;
     }
+    .input-wrapper textarea:focus { box-shadow: none; }
+    
+    .bubble { max-width: 80%; padding: 12px 18px; border-radius: 18px; font-size: 0.9375rem; line-height: 1.5; position: relative; }
+    .bubble.ai { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .bubble.user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+    .bubble-time { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; display: block; }
+    .user .bubble-time { color: rgba(255,255,255,0.7); text-align: right; }
 
-    .quick-prompt:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--primary-lt);
-    }
+    .quick-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; justify-content: center; }
+    .chip { padding: 6px 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); font-size: 0.8125rem; cursor: pointer; transition: var(--transition); color: var(--text-secondary); }
+    .chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
 
-    #clearBtn {
-      font-size: .78rem;
+    .thinking { font-style: italic; font-size: 0.8125rem; color: var(--text-muted); margin-left: 12px; margin-bottom: 8px; }
+
+    @media (max-width: 600px) {
+      .chat-container { height: calc(100vh - 180px); }
+      .bubble { max-width: 90%; }
     }
   </style>
 </head>
-
 <body>
 
   <nav class="navbar">
-    <a href="index.html" class="nav-brand">
-      <div class="logo-icon">🧠</div>
-      <span>NeuroTrack</span>
-    </a>
-    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="index.html"><span class="nav-icon">🏠</span> Dashboard</a></li>
-      <li><a href="chat.html" class="active"><span class="nav-icon">💬</span> Chat</a></li>
-      <li><a href="mood.html"><span class="nav-icon">📊</span> Mood</a></li>
-      <li><a href="suggestions.html"><span class="nav-icon">💡</span> Tips</a></li>
-      <li><a href="status.html"><span class="nav-icon">❤️</span> Status</a></li>
-    </ul>
+    <div class="container nav-content">
+      <a href="index.html" class="nav-brand">
+        <div class="logo-icon">🧠</div>
+        <span>NeuroTrack</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button class="theme-toggle" id="themeToggle">🌓</button>
+        <ul class="nav-links">
+          <li><a href="index.html">Dashboard</a></li>
+          <li><a href="chat.html" class="active">Chat</a></li>
+          <li><a href="mood.html">Mood</a></li>
+          <li><a href="suggestions.html">Tips</a></li>
+        </ul>
+      </div>
+    </div>
   </nav>
 
-  <div class="user-bar">
-    <span>👤 Chatting as:</span>
-    <strong id="chatUserId" style="font-size:.9rem"></strong>
-    <a href="index.html" style="font-size:.8rem;color:var(--primary);text-decoration:none;margin-left:auto">← Change</a>
+  <div class="auth-status-bar">
+    <div class="container auth-status-content">
+      <div class="user-badge">
+        <span id="userTypeIcon">👤</span>
+        <span id="userDisplayName">Connecting...</span>
+      </div>
+      <div id="authActionText"></div>
+    </div>
   </div>
 
-  <main class="main"
-    style="padding-top:16px;display:flex;flex-direction:column;height:calc(100vh - 102px);max-width:800px">
+  <main class="container main">
+    <div class="chat-container card" style="padding:0">
+      <header class="chat-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="font-size:1.5rem">🌿</div>
+          <div>
+            <div style="font-weight:700; font-size:0.9375rem">NeuroTrack Guide</div>
+            <div style="font-size:0.7rem; color:var(--success); display:flex; align-items:center; gap:4px;">
+              <span style="width:6px; height:6px; background:currentColor; border-radius:50%"></span> AI Active
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="clearBtn">Clear Chat</button>
+      </header>
 
-    <!-- Crisis banner -->
-    <div class="crisis-banner" id="crisisBanner">
-      🆘 It sounds like you might be in distress. Please reach out to <strong>Umang Helpline: 0317-4288665</strong> or a
-      trusted person. You are not alone.
-    </div>
-
-    <!-- Chat header -->
-    <div class="chat-header">
-      <div class="chat-header-left">
-        <div class="ai-avatar">🧠</div>
-        <div>
-          <div style="font-weight:600;font-size:.95rem">NeuroTrack Assistant</div>
-          <div id="statusDot" style="font-size:.78rem;color:var(--text-3)">Powered by LLaMA 3.3 · Groq</div>
+      <div class="chat-messages" id="chatMessages">
+        <div style="text-align:center; padding:40px 20px; color:var(--text-muted)">
+          <div style="font-size:3rem; margin-bottom:16px;">💬</div>
+          <h3>Start a conversation</h3>
+          <p style="font-size:0.875rem">I'm here to listen. How are you feeling today?</p>
+          <div class="quick-chips">
+            <span class="chip" data-msg="I'm feeling a bit overwhelmed lately.">Feeling overwhelmed</span>
+            <span class="chip" data-msg="Can you help me with some relaxation techniques?">Relaxation tips</span>
+            <span class="chip" data-msg="I've been having trouble sleeping.">Trouble sleeping</span>
+          </div>
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" id="clearBtn" title="Clear chat">🗑 Clear</button>
-    </div>
 
-    <!-- Mood context selector -->
-    <div class="mood-ctx">
-      <label for="moodCtx">Mood context (optional):</label>
-      <select id="moodCtx">
-        <option value="">— none —</option>
-        <option value="happy">😊 Happy</option>
-        <option value="sad">😢 Sad</option>
-        <option value="anxious">😰 Anxious</option>
-        <option value="angry">😠 Angry</option>
-        <option value="stressed">😤 Stressed</option>
-        <option value="tired">😴 Tired</option>
-        <option value="lonely">😔 Lonely</option>
-        <option value="overwhelmed">😵 Overwhelmed</option>
-        <option value="depressed">😞 Depressed</option>
-        <option value="calm">😌 Calm</option>
-        <option value="neutral">😐 Neutral</option>
-      </select>
-    </div>
+      <div id="thinking" class="thinking" style="display:none">NeuroTrack is thinking...</div>
 
-    <!-- Chat window -->
-    <div class="chat-window" id="chatWindow">
-      <div class="welcome-msg" id="welcomeMsg">
-        <div class="big-emoji">🌿</div>
-        <h3>Hello, I'm here for you</h3>
-        <p>Feel free to share how you're feeling. This is a safe, judgement-free space.</p>
-        <div class="quick-prompts">
-          <span class="quick-prompt" data-msg="I've been feeling really anxious lately.">😰 I feel anxious</span>
-          <span class="quick-prompt" data-msg="I can't stop feeling sad and I don't know why.">😢 I feel sad</span>
-          <span class="quick-prompt" data-msg="I'm really stressed about work and responsibilities.">😤 Work
-            stress</span>
-          <span class="quick-prompt" data-msg="I've been feeling lonely and disconnected.">😔 Feeling lonely</span>
-          <span class="quick-prompt" data-msg="I just need someone to talk to.">💬 Just talk</span>
+      <footer class="chat-input-area">
+        <div class="input-wrapper">
+          <textarea id="msgInput" placeholder="Type your message..." rows="1"></textarea>
+          <button class="btn-icon" id="sendBtn" style="width:40px; height:40px; border-radius:50%">➤</button>
         </div>
-      </div>
+      </footer>
     </div>
-
-    <!-- Input bar -->
-    <div>
-      <div class="chat-input-bar">
-        <textarea id="msgInput" placeholder="Share how you're feeling…" maxlength="1000" rows="1"></textarea>
-        <button class="btn-icon" id="sendBtn" title="Send">➤</button>
-      </div>
-      <div class="char-count" id="charCount">0 / 1000</div>
-    </div>
-
   </main>
 
   <div id="toast-container"></div>
 
   <script type="module">
-    import { sendChat, getUserId, showToast, moodEmoji, formatDate } from './js/api.js';
+    import { auth, sendChat, getUserId, showToast, formatDate } from './js/api.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-    document.getElementById('hamburger').addEventListener('click', () => {
-      document.getElementById('navLinks').classList.toggle('open');
+    // ── Theme Manager ─────────────────────────────────────────────────────────
+    const themeToggle = document.getElementById('themeToggle');
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    themeToggle.onclick = () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    };
+
+    // ── Auth Init ─────────────────────────────────────────────────────────────
+    onAuthStateChanged(auth, (user) => {
+      document.getElementById('userDisplayName').textContent = user ? user.email : 'Guest Mode';
     });
 
-    const uid = getUserId();
-    document.getElementById('chatUserId').textContent = uid || 'Anonymous';
-
-    const chatWindow = document.getElementById('chatWindow');
+    const chatMessages = document.getElementById('chatMessages');
     const msgInput = document.getElementById('msgInput');
     const sendBtn = document.getElementById('sendBtn');
-    const charCount = document.getElementById('charCount');
-    const moodCtx = document.getElementById('moodCtx');
-    const crisisBanner = document.getElementById('crisisBanner');
-    const welcomeMsg = document.getElementById('welcomeMsg');
+    let conversation = JSON.parse(sessionStorage.getItem('nt_chat') || '[]');
 
-    let messages = JSON.parse(sessionStorage.getItem('NeuroTrack_chat') || '[]');
-
-    // ── Render saved messages ─────────────────────────────────────────────────────
-    function renderAll() {
-      if (!messages.length) { welcomeMsg.style.display = ''; return; }
-      welcomeMsg.style.display = 'none';
-      messages.forEach(m => appendBubble(m.role, m.text, m.time, false));
+    function renderChat() {
+      if (!conversation.length) return;
+      chatMessages.innerHTML = conversation.map(m => `
+        <div class="bubble ${m.role}">
+          ${m.text}
+          <span class="bubble-time">${m.time}</span>
+        </div>
+      `).join('');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function appendBubble(role, text, time, scroll = true) {
-      const row = document.createElement('div');
-      row.className = `bubble-row ${role === 'user' ? 'user' : ''}`;
-      const isUser = role === 'user';
-      row.innerHTML = `
-    <div class="avatar ${isUser ? 'usr' : 'ai'}">${isUser ? '👤' : '🧠'}</div>
-    <div>
-      <div class="bubble ${isUser ? 'usr' : 'ai'}">${escHtml(text)}</div>
-      <div class="bubble-time">${time || formatDate(new Date().toISOString())}</div>
-    </div>`;
-      chatWindow.appendChild(row);
-      if (scroll) chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-
-    function showThinking() {
-      const el = document.createElement('div');
-      el.id = 'thinking';
-      el.className = 'thinking-row';
-      el.innerHTML = `<div class="avatar ai">🧠</div><div class="thinking-bubble"><div class="thinking-dots"><span></span><span></span><span></span></div></div>`;
-      chatWindow.appendChild(el);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
-    function hideThinking() { document.getElementById('thinking')?.remove(); }
-
-    function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>'); }
-
-    function detectCrisis(text) {
-      const kw = ['suicide', 'self-harm', 'hurt myself', 'want to die', 'kill myself', 'end my life', 'helpline'];
-      return kw.some(k => text.toLowerCase().includes(k));
-    }
-
-    // ── Send message ──────────────────────────────────────────────────────────────
-    async function send() {
+    async function handleSend() {
       const text = msgInput.value.trim();
       if (!text) return;
-      if (!uid && !getUserId()) { showToast('Please set your User ID on the Dashboard first.', 'error'); return; }
 
-      welcomeMsg.style.display = 'none';
-      const now = formatDate(new Date().toISOString());
-      const mood = moodCtx.value;
-      messages.push({ role: 'user', text, time: now });
-      sessionStorage.setItem('NeuroTrack_chat', JSON.stringify(messages));
-      appendBubble('user', text, now);
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      conversation.push({ role: 'user', text, time });
       msgInput.value = '';
-      charCount.textContent = '0 / 1000';
-      sendBtn.disabled = true;
-      showThinking();
+      msgInput.style.height = 'auto';
+      renderChat();
+      
+      document.getElementById('thinking').style.display = 'block';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
 
       try {
-        const res = await sendChat(uid || 'anonymous', text, mood);
-        hideThinking();
-        const replyTime = formatDate(res.timestamp || new Date().toISOString());
-        messages.push({ role: 'ai', text: res.reply, time: replyTime });
-        sessionStorage.setItem('NeuroTrack_chat', JSON.stringify(messages));
-        appendBubble('ai', res.reply, replyTime);
-        if (detectCrisis(res.reply)) crisisBanner.classList.add('show');
+        const res = await sendChat(getUserId(), text);
+        const aiTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        conversation.push({ role: 'ai', text: res.reply, time: aiTime });
+        sessionStorage.setItem('nt_chat', JSON.stringify(conversation));
+        renderChat();
       } catch (e) {
-        hideThinking();
-        showToast(e.message || 'Could not reach the backend.', 'error');
-        appendBubble('ai', '⚠️ Sorry, I had trouble connecting. Please make sure the backend is running.', now);
+        showToast('Failed to get response', 'error');
       } finally {
-        sendBtn.disabled = false;
-        msgInput.focus();
+        document.getElementById('thinking').style.display = 'none';
       }
     }
 
-    // ── Char count ────────────────────────────────────────────────────────────────
-    msgInput.addEventListener('input', () => {
-      const len = msgInput.value.length;
-      charCount.textContent = `${len} / 1000`;
-      charCount.className = `char-count${len > 900 ? ' warn' : ''}`;
-      // Auto-resize
-      msgInput.style.height = 'auto';
-      msgInput.style.height = Math.min(msgInput.scrollHeight, 140) + 'px';
+    sendBtn.onclick = handleSend;
+    msgInput.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+    msgInput.oninput = () => { msgInput.style.height = 'auto'; msgInput.style.height = msgInput.scrollHeight + 'px'; };
+
+    document.getElementById('clearBtn').onclick = () => {
+      if(confirm('Clear this conversation?')) {
+        conversation = [];
+        sessionStorage.removeItem('nt_chat');
+        location.reload();
+      }
+    };
+
+    document.querySelectorAll('.chip').forEach(c => {
+      c.onclick = () => { msgInput.value = c.dataset.msg; handleSend(); };
     });
 
-    msgInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-    });
-
-    sendBtn.addEventListener('click', send);
-
-    // ── Quick prompts ─────────────────────────────────────────────────────────────
-    document.querySelectorAll('.quick-prompt').forEach(el => {
-      el.addEventListener('click', () => {
-        msgInput.value = el.dataset.msg;
-        charCount.textContent = `${el.dataset.msg.length} / 1000`;
-        send();
-      });
-    });
-
-    // ── Clear ─────────────────────────────────────────────────────────────────────
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      if (!confirm('Clear conversation history?')) return;
-      messages = [];
-      sessionStorage.removeItem('NeuroTrack_chat');
-      chatWindow.innerHTML = '';
-      chatWindow.appendChild(welcomeMsg);
-      welcomeMsg.style.display = '';
-      crisisBanner.classList.remove('show');
-    });
-
-    // ── Init ──────────────────────────────────────────────────────────────────────
-    renderAll();
+    renderChat();
   </script>
 </body>
-
 </html>
