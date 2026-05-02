@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.firebase_service import get_db
 from utils.validators import validate_required_fields, validate_mood
+from google.cloud.firestore_v1.base_query import FieldFilter
 from datetime import datetime, timezone
 import logging
 
@@ -137,7 +138,7 @@ def get_mood_history():
         db = get_db()
         query = (
             db.collection("moods")
-            .where("user_id", "==", user_id)
+            .where(filter=FieldFilter("user_id", "==", user_id))
             .order_by("timestamp", direction="DESCENDING")
             .limit(limit)
         )
@@ -195,7 +196,7 @@ def get_mood_summary():
         db = get_db()
         docs = (
             db.collection("moods")
-            .where("user_id", "==", user_id)
+            .where(filter=FieldFilter("user_id", "==", user_id))
             .order_by("timestamp", direction="DESCENDING")
             .limit(100)
             .stream()
