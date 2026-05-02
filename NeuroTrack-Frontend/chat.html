@@ -11,8 +11,9 @@
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 200px);
-      min-height: 400px;
+      height: 85vh;
+      width: 75vw;
+      margin: 0 auto;
     }
     .chat-header {
       padding: 16px;
@@ -79,8 +80,8 @@
 
     .thinking { font-style: italic; font-size: 0.8125rem; color: var(--text-muted); margin-left: 12px; margin-bottom: 8px; }
 
-    @media (max-width: 600px) {
-      .chat-container { height: calc(100vh - 180px); }
+    @media (max-width: 768px) {
+      .chat-container { height: 85vh; width: 90vw; }
       .bubble { max-width: 90%; }
     }
   </style>
@@ -117,7 +118,7 @@
     </div>
   </div>
 
-  <main class="container main">
+  <main class="main" style="display: flex; justify-content: center; width: 100%;">
     <div class="chat-container card" style="padding:0">
       <header class="chat-header">
         <div style="display:flex; align-items:center; gap:12px;">
