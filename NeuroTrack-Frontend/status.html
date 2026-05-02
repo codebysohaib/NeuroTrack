@@ -259,7 +259,7 @@
         const op = document.getElementById('overallPill');
         op.className = 'big-pill pill pill-red';
         op.innerHTML = '<span class="dot"></span> Offline';
-        document.getElementById('servicesContent').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Cannot connect to backend. Make sure Flask is running at <code>localhost:5000</code>.</p></div>`;
+        document.getElementById('servicesContent').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Cannot connect to backend. Make sure Flask is running at <code>https://neurotrack-0q5m.onrender.com</code>.</p></div>`;
         document.getElementById('runtimeContent').innerHTML = `<p style="color:var(--text-3);font-size:.875rem;padding:8px">No data available.</p>`;
         document.getElementById('systemContent').innerHTML = `<p style="color:var(--text-3);font-size:.875rem;padding:8px">No data available.</p>`;
         document.getElementById('jsonRaw').textContent = '// Backend is offline or CORS is blocking the request.';
