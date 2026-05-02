@@ -37,9 +37,9 @@ def _initialize_firebase() -> bool:
     
     if firebase_env:
         try:
-            # Fix any escaped newlines caused by copy-pasting
-            firebase_env = firebase_env.replace('\\n', '\n')
-            cred_dict = json.loads(firebase_env)
+            # FIX: Real newlines ko wapas escaped newlines banayen, aur strict=False set karein
+            firebase_env = firebase_env.replace('\n', '\\n')
+            cred_dict = json.loads(firebase_env, strict=False)
             
             if not firebase_admin._apps:
                 cred = credentials.Certificate(cred_dict)
