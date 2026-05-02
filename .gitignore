@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# NeuroTrack — .gitignore
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── SECURITY: Firebase / Google credentials ───────────────────────────────────
+serviceAccountKey.json
+**/serviceAccountKey.json
+*.pem
+*.p12
+*.keystore
+google-services.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# ── Environment variables ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Node / npm (package-lock from backend) ────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS & editor files ─────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
