@@ -1,4 +1,4 @@
-import os # Import lazmi karen warna port wala code crash ho jayega
+import os
 from flask import Flask
 from flask_cors import CORS
 from routes.chat import chat_bp
@@ -8,7 +8,19 @@ from routes.health import health_bp
 
 app = Flask(__name__)
 
-CORS(app)
+# Explicit CORS — allows Vercel frontend + local dev on all /api/* routes
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://neurotrack-nine.vercel.app",
+            "https://*.vercel.app",   # covers preview deployments
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+    }
+})
 
 # Register Blueprints
 app.register_blueprint(health_bp, url_prefix="/api")
