@@ -52,7 +52,6 @@ def save_mood():
             "detail": f"Note must be under {MAX_NOTE_LENGTH} characters."
         }), 400
 
-    # Optional intensity score (1-10)
     intensity = data.get("intensity")
     if intensity is not None:
         try:
@@ -80,9 +79,7 @@ def save_mood():
 
     try:
         db = get_db()
-        # Firebase .add() returns (DatetimeWithNanoseconds, DocumentReference)
         _, doc_ref = db.collection("moods").add(mood_entry)
-
         logger.info(f"[Mood Saved] user={user_id} mood={mood} doc={doc_ref.id}")
 
         return jsonify({
@@ -110,8 +107,8 @@ def save_mood():
 def get_mood_history():
     """
     GET /api/mood/history?user_id=&limit=&mood=
-    Returns paginated mood history for a user, newest first.
-    Optional filters: mood, limit
+    Returns mood history newest-first. Sorting done in Python to avoid
+    requiring a composite Firestore index (user_id + timestamp).
     """
     user_id = request.args.get("user_id", "").strip()
 
@@ -136,14 +133,12 @@ def get_mood_history():
 
     try:
         db = get_db()
-        query = (
+        # Query by user_id only — no .order_by() avoids composite index requirement
+        docs = (
             db.collection("moods")
             .where(filter=FieldFilter("user_id", "==", user_id))
-            .order_by("timestamp", direction="DESCENDING")
-            .limit(limit)
+            .stream()
         )
-
-        docs = query.stream()
 
         history = []
         for doc in docs:
@@ -158,8 +153,12 @@ def get_mood_history():
                 "mood": mood_val,
                 "note": entry.get("note", ""),
                 "intensity": entry.get("intensity"),
-                "timestamp": entry.get("timestamp"),
+                "timestamp": entry.get("timestamp", ""),
             })
+
+        # Sort newest first in Python — no Firestore composite index needed
+        history.sort(key=lambda x: x["timestamp"] or "", reverse=True)
+        history = history[:limit]
 
         return jsonify({
             "user_id": user_id,
@@ -182,7 +181,7 @@ def get_mood_summary():
     """
     GET /api/mood/summary?user_id=
     Returns mood frequency breakdown and most common mood.
-    Useful for frontend dashboard/analytics.
+    Sorting done in Python to avoid composite Firestore index requirement.
     """
     user_id = request.args.get("user_id", "").strip()
 
@@ -194,27 +193,18 @@ def get_mood_summary():
 
     try:
         db = get_db()
+        # Query by user_id only — no .order_by() avoids composite index requirement
         docs = (
             db.collection("moods")
             .where(filter=FieldFilter("user_id", "==", user_id))
-            .order_by("timestamp", direction="DESCENDING")
-            .limit(100)
             .stream()
         )
 
-        mood_counts = {}
-        total = 0
-        latest_mood = None
-
+        all_entries = []
         for doc in docs:
-            entry = doc.to_dict()
-            mood = entry.get("mood", "unknown")
-            mood_counts[mood] = mood_counts.get(mood, 0) + 1
-            if latest_mood is None:
-                latest_mood = mood
-            total += 1
+            all_entries.append(doc.to_dict())
 
-        if total == 0:
+        if not all_entries:
             return jsonify({
                 "user_id": user_id,
                 "total_entries": 0,
@@ -223,11 +213,20 @@ def get_mood_summary():
                 "breakdown": {}
             }), 200
 
+        # Sort newest first in Python
+        all_entries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+
+        mood_counts = {}
+        for entry in all_entries:
+            mood = entry.get("mood", "unknown")
+            mood_counts[mood] = mood_counts.get(mood, 0) + 1
+
+        latest_mood = all_entries[0].get("mood") if all_entries else None
         most_common = max(mood_counts, key=mood_counts.get)
 
         return jsonify({
             "user_id": user_id,
-            "total_entries": total,
+            "total_entries": len(all_entries),
             "most_common_mood": most_common,
             "latest_mood": latest_mood,
             "breakdown": mood_counts
