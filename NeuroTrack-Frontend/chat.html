@@ -11,56 +11,71 @@
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: 85vh;
-      width: 75vw;
+      height: calc(100dvh - 120px);
+      min-height: 480px;
+      width: min(780px, 100%);
       margin: 0 auto;
     }
     .chat-header {
-      padding: 16px;
+      padding: 14px 16px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       background: var(--surface);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      flex-shrink: 0;
     }
     .chat-messages {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       background: var(--bg);
+      /* Smooth momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
     }
     .chat-input-area {
-      padding: 12px;
-      height: 73px;
+      padding: 10px 12px;
       border-top: 1px solid var(--border);
       background: var(--surface);
       border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      flex-shrink: 0;
     }
     .input-wrapper {
       display: flex;
-      gap: 12px;
+      align-items: center;
+      gap: 8px;
       background: var(--surface-2);
-      padding: 4px;
+      padding: 4px 4px 4px 16px;
       border-radius: 24px;
       border: 1px solid var(--border);
-      height: 50px;
     }
     .input-wrapper textarea {
       flex: 1;
       border: none;
       background: transparent;
-      padding: 6px 16px;
+      padding: 8px 0;
       resize: none;
       max-height: 120px;
-      font-size: 0.9375rem;
+      font-size: 1rem;
+      line-height: 1.4;
+      min-height: 36px;
     }
     .input-wrapper textarea:focus { box-shadow: none; }
     
-    .bubble { max-width: 80%; padding: 12px 18px; border-radius: 18px; font-size: 0.9375rem; line-height: 1.5; position: relative; }
+    .bubble {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      position: relative;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
     .bubble.ai { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
     .bubble.user { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
     .bubble-time { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; display: block; }
@@ -70,21 +85,69 @@
     .bubble p { margin-top: 0; margin-bottom: 8px; }
     .bubble p:last-of-type { margin-bottom: 0; }
     .bubble ul, .bubble ol { margin-top: 0; margin-bottom: 8px; padding-left: 20px; }
-    .bubble pre { background: rgba(0,0,0,0.05); padding: 12px; border-radius: 8px; overflow-x: auto; margin-bottom: 8px; }
+    .bubble pre { background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; overflow-x: auto; margin-bottom: 8px; }
     [data-theme="dark"] .bubble pre { background: rgba(255,255,255,0.1); }
     .bubble code { background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; font-family: monospace; font-size: 0.85em; }
     [data-theme="dark"] .bubble code { background: rgba(255,255,255,0.1); }
     .bubble pre code { background: transparent; padding: 0; }
 
     .quick-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; justify-content: center; }
-    .chip { padding: 6px 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); font-size: 0.8125rem; cursor: pointer; transition: var(--transition); color: var(--text-secondary); }
+    .chip { padding: 8px 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); font-size: 0.8125rem; cursor: pointer; transition: var(--transition); color: var(--text-secondary); touch-action: manipulation; }
     .chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
 
-    .thinking { font-style: italic; font-size: 0.8125rem; color: var(--text-muted); margin-left: 12px; margin-bottom: 8px; }
+    .thinking { font-style: italic; font-size: 0.8125rem; color: var(--text-muted); padding: 4px 16px 8px; }
+
+    .btn-send {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: var(--transition);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-send:hover { background: var(--primary-dk); }
+    .btn-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 7px 14px;
+      border-radius: var(--radius-xl);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    .btn-ghost:hover { background: var(--error-lt); border-color: var(--error); color: var(--error); }
 
     @media (max-width: 768px) {
-      .chat-container { height: 85vh; width: 90vw; }
-      .bubble { max-width: 90%; }
+      .chat-container {
+        height: calc(100dvh - 110px);
+        width: 100%;
+        border-radius: var(--radius);
+      }
+      .chat-messages { padding: 16px 12px; }
+      .bubble { max-width: 88%; font-size: 0.9rem; }
+      .quick-chips { gap: 6px; }
+      .chip { font-size: 0.75rem; padding: 7px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .chat-container { border-radius: 0; }
+      .chat-header { border-radius: 0; padding: 12px; }
+      .chat-input-area { border-radius: 0; }
+      .bubble { max-width: 92%; padding: 10px 13px; }
     }
   </style>
 </head>
@@ -132,7 +195,7 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-sm btn-ghost" id="clearBtn">Clear Chat</button>
+        <button class="btn-ghost" id="clearBtn">Clear Chat</button>
       </header>
 
       <div class="chat-messages" id="chatMessages">
@@ -153,7 +216,7 @@
       <footer class="chat-input-area">
         <div class="input-wrapper">
           <textarea id="msgInput" placeholder="Type your message..." rows="1"></textarea>
-          <button class="btn-icon" id="sendBtn" style="width:40px; height:40px; border-radius:50%">➤</button>
+          <button class="btn-send" id="sendBtn" aria-label="Send message">➤</button>
         </div>
       </footer>
     </div>

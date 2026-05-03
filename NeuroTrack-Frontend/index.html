@@ -56,12 +56,12 @@
       <div class="hero-text">
         <h1 id="welcomeTitle">Hi there 👋</h1>
         <p>Your safe space for emotional tracking and AI-guided support. Let's see how you're trending today.</p>
-        <div style="margin-top:24px; display:flex; gap:12px;">
+        <div class="hero-actions">
           <a href="chat.html" class="btn btn-primary">💬 AI Chat</a>
           <a href="mood.html" class="btn btn-outline">📝 Log Mood</a>
         </div>
       </div>
-      <div style="font-size: 5rem; line-height: 1;">🧘</div>
+      <div class="hero-emoji">🧘</div>
     </header>
 
     <!-- Content Grid -->
@@ -85,10 +85,10 @@
     </div>
 
     <!-- Health Footer -->
-    <div style="margin-top: var(--space-xxl); padding-top: var(--space-lg); border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.75rem;">
+    <div class="page-footer">
       <div>NeuroTrack © 2026</div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span id="apiPill" style="width:8px; height:8px; border-radius:50%; background: #ccc;"></span>
+      <div class="page-footer-status">
+        <span id="apiPill" style="width:8px; height:8px; border-radius:50%; background: #ccc; display:inline-block;"></span>
         Service: <span id="apiStatusText">Checking...</span>
       </div>
     </div>

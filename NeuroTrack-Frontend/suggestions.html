@@ -9,49 +9,67 @@
   <style>
     .mood-box {
       background: var(--surface);
-      padding: 32px;
+      padding: 24px;
       border-radius: var(--radius-lg);
       text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
     .mood-flex {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
-      margin-top: 24px;
+      margin-top: 20px;
     }
     .tip-result-card {
       background: var(--primary-lt);
       border: 1px solid var(--primary);
-      padding: 32px;
+      padding: 24px;
       border-radius: var(--radius-lg);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       animation: fadeIn 0.4s ease;
+    }
+    .tip-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 4px;
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
     .tip-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-      margin-top: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+      gap: 16px;
+      margin-top: 20px;
     }
     .tip-item-card {
       background: var(--surface);
-      padding: 24px;
+      padding: 20px;
       border-radius: var(--radius);
       border: 1px solid var(--border);
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
     .tip-item-card .icon { font-size: 1.5rem; }
     .tip-item-card .text { font-size: 0.9375rem; line-height: 1.6; color: var(--text); }
 
+    .page-header {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .page-header h1 {
+      font-size: clamp(1.5rem, 5vw, 2.25rem);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
     .loading-shimmer {
-      height: 200px;
+      height: 180px;
       background: var(--surface-2);
       border-radius: var(--radius-lg);
       display: flex;
@@ -61,8 +79,15 @@
       animation: shimmer 1.5s infinite linear;
       background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
       background-size: 200% 100%;
+      font-size: 0.9rem;
+      padding: 16px;
     }
     @keyframes shimmer { to { background-position: -200% 0; } }
+
+    @media (max-width: 480px) {
+      .mood-box { padding: 16px; }
+      .tip-result-card { padding: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -98,8 +123,8 @@
   </div>
 
   <main class="container main">
-    <header style="margin-bottom: 40px; text-align: center;">
-      <h1 style="font-size: 2.25rem; margin-bottom: 8px;">Personalized Tips</h1>
+    <header class="page-header">
+      <h1>Personalized Tips</h1>
       <p style="color: var(--text-secondary)">Get AI-powered wellness suggestions based on your current state.</p>
     </header>
 
@@ -114,7 +139,7 @@
 
     <section id="tipsResult" style="display:none;">
       <div class="tip-result-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="tip-result-header">
           <h2 id="resultTitle">Results</h2>
           <button class="btn btn-sm btn-primary" id="refreshBtn">🔄 Refresh Tips</button>
         </div>
@@ -122,8 +147,8 @@
       </div>
     </section>
 
-    <section style="margin-top: 60px;">
-      <h2 style="font-size: 1.5rem; margin-bottom: 24px;">Explore Other Moods</h2>
+    <section style="margin-top: 48px;">
+      <h2 style="font-size: 1.375rem; margin-bottom: 20px;">Explore Other Moods</h2>
       <div class="grid grid-3" id="libraryGrid">
         <!-- Static fallback library items -->
       </div>
