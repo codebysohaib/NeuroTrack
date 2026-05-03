@@ -617,3 +617,142 @@ input[type="range"] {
 
   .chart-container { height: 190px; }
 }
+
+/* ══════════════════════════════
+   COMPONENT CLASSES
+   (replaces all inline styles)
+   ══════════════════════════════ */
+
+/* ── Auth Bar Links (JS-generated) ── */
+.auth-link {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--primary);
+}
+.auth-link-danger {
+  text-decoration: none;
+  font-weight: 600;
+  color: var(--error);
+}
+
+/* ── API Status Pill ── */
+.api-pill {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ── Button Variants ── */
+.btn-full { width: 100%; }
+
+/* ── Dashboard: Quick Stats ── */
+.summary-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+.stats-flex {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  gap: 8px;
+}
+.stat-item { text-align: center; flex: 1; }
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.stat-value-md { font-size: 1.75rem; line-height: 1.2; }
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+.stat-empty { color: var(--text-muted); }
+
+/* ── Typography Helpers ── */
+.page-subtitle  { color: var(--text-secondary); }
+.section-label  { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.text-sm        { font-size: 0.875rem; }
+.mb-sm          { margin-bottom: var(--space-sm); }
+.mb-md          { margin-bottom: var(--space-md); }
+
+/* ── History / State Placeholders ── */
+.empty-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-state-error {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--error);
+}
+.empty-note { color: var(--text-muted); font-style: italic; }
+
+/* ── Mood Button Label ── */
+.mood-btn-label {
+  font-weight: 700;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+/* ── Mood: Intensity Row ── */
+.intensity-range { margin: 10px 0; display: block; }
+.intensity-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.intensity-label-inline { margin-bottom: 0; }
+
+/* ── Mood: Filter Select ── */
+.filter-select { width: auto !important; }
+
+/* ── Chat: Header Info ── */
+.chat-ai-info   { display: flex; align-items: center; gap: 12px; }
+.chat-ai-emoji  { font-size: 1.5rem; line-height: 1; }
+.chat-ai-name   { font-weight: 700; font-size: 0.9375rem; }
+.chat-ai-status {
+  font-size: 0.7rem;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+.chat-ai-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ── Chat: Welcome Screen ── */
+.chat-welcome {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.chat-welcome-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+.chat-welcome p { font-size: 0.875rem; margin-top: 8px; }
+
+/* ── Hidden (JS-toggled) ── */
+.hidden { display: none !important; }

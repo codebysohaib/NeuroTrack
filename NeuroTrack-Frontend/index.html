@@ -77,10 +77,10 @@
       <!-- Stats Card -->
       <section class="card">
         <h3 class="card-title">Quick Stats</h3>
-        <div id="summaryContent" style="flex: 1; display: flex; align-items: center; justify-content: center;">
-           <div style="width:100%; text-align:center;">Checking data...</div>
+        <div id="summaryContent" class="summary-content">
+           <div class="text-center">Checking data...</div>
         </div>
-        <div id="breakdownChart" style="margin-top: var(--space-lg);"></div>
+        <div id="breakdownChart" class="mb-md"></div>
       </section>
     </div>
 
@@ -88,7 +88,7 @@
     <div class="page-footer">
       <div>NeuroTrack © 2026</div>
       <div class="page-footer-status">
-        <span id="apiPill" style="width:8px; height:8px; border-radius:50%; background: #ccc; display:inline-block;"></span>
+        <span id="apiPill" class="api-pill"></span>
         Service: <span id="apiStatusText">Checking...</span>
       </div>
     </div>
@@ -122,14 +122,14 @@
 
       if (user) {
         userDisplayName.textContent = user.email || 'Authenticated User';
-        authActionText.innerHTML = `<a href="#" id="logoutBtn" style="color:var(--error); text-decoration:none; font-weight:600">Logout</a>`;
+        authActionText.innerHTML = `<a href="#" id="logoutBtn" class="auth-link-danger">Logout</a>`;
         authNavItem.innerHTML = `<a href="#" id="logoutNavBtn" class="btn btn-sm btn-outline">Logout</a>`;
         welcomeTitle.textContent = `Welcome back, ${user.displayName || user.email.split('@')[0]} 👋`;
         document.getElementById('logoutBtn').onclick = handleLogout;
         document.getElementById('logoutNavBtn').onclick = handleLogout;
       } else {
         userDisplayName.textContent = 'Guest Mode (' + getUserId() + ')';
-        authActionText.innerHTML = `<a href="login.html" style="color:var(--primary); text-decoration:none; font-weight:600">Login to Sync</a>`;
+        authActionText.innerHTML = `<a href="login.html" class="auth-link">Login to Sync</a>`;
         authNavItem.innerHTML = `<a href="login.html" class="btn btn-sm btn-outline">Login</a>`;
         welcomeTitle.textContent = `Hello there 👋`;
       }
@@ -161,22 +161,22 @@
     function renderSummary(d) {
       const el = document.getElementById('summaryContent');
       if (!d.total_entries) {
-        el.innerHTML = `<div style="color:var(--text-muted)">No data found for this period.</div>`;
+        el.innerHTML = `<div class="stat-empty">No data found for this period.</div>`;
         return;
       }
       el.innerHTML = `
-        <div style="display:flex; justify-content:space-around; width:100%;">
-          <div style="text-align:center">
-            <div style="font-size:1.75rem; font-weight:700">${d.total_entries}</div>
-            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Entries</div>
+        <div class="stats-flex">
+          <div class="stat-item">
+            <div class="stat-value">${d.total_entries}</div>
+            <div class="stat-label">Entries</div>
           </div>
-          <div style="text-align:center">
-            <div style="font-size:1.75rem">${moodEmoji(d.latest_mood)}</div>
-            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Latest</div>
+          <div class="stat-item">
+            <div class="stat-value-md">${moodEmoji(d.latest_mood)}</div>
+            <div class="stat-label">Latest</div>
           </div>
-          <div style="text-align:center">
-            <div style="font-size:1.75rem">${moodEmoji(d.most_common_mood)}</div>
-            <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase">Common</div>
+          <div class="stat-item">
+            <div class="stat-value-md">${moodEmoji(d.most_common_mood)}</div>
+            <div class="stat-label">Common</div>
           </div>
         </div>`;
     }

@@ -117,8 +117,8 @@
       <!-- Left: Form -->
       <section>
         <div class="card">
-          <h2 style="margin-bottom: 8px;">Log Mood</h2>
-          <p style="margin-bottom: 24px; font-size: 0.875rem;">How are you feeling right now?</p>
+          <h2 class="mb-sm">Log Mood</h2>
+          <p class="text-sm mb-md">How are you feeling right now?</p>
 
           <div class="form-group">
             <label>Select Mood</label>
@@ -127,11 +127,11 @@
 
           <div class="intensity-box">
             <div class="intensity-header">
-              <label style="margin-bottom:0">Intensity Level</label>
+              <label class="intensity-label-inline">Intensity Level</label>
               <span class="intensity-val" id="intensityDisplay">5</span>
             </div>
-            <input type="range" id="intensityRange" min="1" max="10" value="5" style="margin: 10px 0" />
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); font-weight:700">
+            <input type="range" id="intensityRange" min="1" max="10" value="5" class="intensity-range" />
+            <div class="intensity-marks">
               <span>MILD</span>
               <span>EXTREME</span>
             </div>
@@ -142,21 +142,21 @@
             <textarea id="moodNote" placeholder="Optional notes about your day..." rows="4"></textarea>
           </div>
 
-          <button class="btn btn-primary" id="logBtn" style="width:100%">📝 Log Entry</button>
+          <button class="btn btn-primary btn-full" id="logBtn">📝 Log Entry</button>
         </div>
       </section>
 
       <!-- Right: History -->
       <section>
         <div class="mood-page-header">
-          <h2 style="font-size: 1.25rem;">Recent History</h2>
-          <select id="moodFilter" class="btn btn-sm btn-outline" style="width:auto; padding:6px 12px">
+          <h2 class="text-sm" style="font-size:1.25rem">Recent History</h2>
+          <select id="moodFilter" class="btn btn-sm btn-outline filter-select">
             <option value="">All Moods</option>
           </select>
         </div>
 
         <div class="card history-card" id="historyContent">
-          <div style="padding:40px; text-align:center; color:var(--text-muted)">Loading your history...</div>
+          <div class="empty-state">Loading your history...</div>
         </div>
       </section>
     </div>
@@ -199,7 +199,7 @@
       // Form button
       const btn = document.createElement('button');
       btn.className = 'mood-btn';
-      btn.innerHTML = `<span>${emoji}</span><small style="font-weight:700; font-size:0.65rem; text-transform:uppercase">${label}</small>`;
+      btn.innerHTML = `<span>${emoji}</span><small class="mood-btn-label">${label}</small>`;
       btn.onclick = () => {
         document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
@@ -246,7 +246,7 @@
       try {
         const data = await getMoodHistory(getUserId(), 20, filter);
         if (!data.history?.length) {
-          el.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted)">No entries found.</div>`;
+          el.innerHTML = `<div class="empty-state">No entries found.</div>`;
           return;
         }
         el.innerHTML = data.history.map(h => `
@@ -256,7 +256,7 @@
               <span class="label">${h.mood}</span>
             </div>
             <div class="history-body">
-              <div class="note">${h.note || '<i style="color:var(--text-muted)">No notes added</i>'}</div>
+              <div class="note">${h.note || '<i class="empty-note">No notes added</i>'}</div>
               <div class="meta">
                 <span class="pill-intensity" style="background:${getIntensityBg(h.intensity)}; color:${getIntensityColor(h.intensity)}">Intensity: ${h.intensity}/10</span>
               </div>
@@ -265,7 +265,7 @@
           </div>
         `).join('');
       } catch (e) {
-        el.innerHTML = `<div style="padding:40px; text-align:center; color:var(--error)">Error loading history.</div>`;
+        el.innerHTML = `<div class="empty-state-error">Error loading history.</div>`;
       }
     }
 

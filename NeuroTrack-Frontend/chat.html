@@ -196,12 +196,12 @@
   <main class="chat-main">
     <div class="chat-container card" style="padding:0">
       <header class="chat-header">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:1.5rem">🌿</div>
+        <div class="chat-ai-info">
+          <div class="chat-ai-emoji">🌿</div>
           <div>
-            <div style="font-weight:700; font-size:0.9375rem">NeuroTrack Guide</div>
-            <div style="font-size:0.7rem; color:var(--success); display:flex; align-items:center; gap:4px;">
-              <span style="width:6px; height:6px; background:currentColor; border-radius:50%"></span> AI Active
+            <div class="chat-ai-name">NeuroTrack Guide</div>
+            <div class="chat-ai-status">
+              <span class="chat-ai-dot"></span> AI Active
             </div>
           </div>
         </div>
@@ -209,10 +209,10 @@
       </header>
 
       <div class="chat-messages" id="chatMessages">
-        <div style="text-align:center; padding:40px 20px; color:var(--text-muted)">
-          <div style="font-size:3rem; margin-bottom:16px;">💬</div>
+        <div class="chat-welcome">
+          <div class="chat-welcome-icon">💬</div>
           <h3>Start a conversation</h3>
-          <p style="font-size:0.875rem">I'm here to listen. How are you feeling today?</p>
+          <p>I'm here to listen. How are you feeling today?</p>
           <div class="quick-chips">
             <span class="chip" data-msg="I'm feeling a bit overwhelmed lately.">Feeling overwhelmed</span>
             <span class="chip" data-msg="Can you help me with some relaxation techniques?">Relaxation tips</span>
@@ -221,7 +221,7 @@
         </div>
       </div>
 
-      <div id="thinking" class="thinking" style="display:none">NeuroTrack is thinking...</div>
+      <div id="thinking" class="thinking hidden">NeuroTrack is thinking...</div>
 
       <footer class="chat-input-area">
         <div class="input-wrapper">
@@ -286,7 +286,7 @@
       msgInput.style.height = 'auto';
       renderChat();
       
-      document.getElementById('thinking').style.display = 'block';
+      document.getElementById('thinking').classList.remove('hidden');
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
       try {
@@ -298,7 +298,7 @@
       } catch (e) {
         showToast('Failed to get response', 'error');
       } finally {
-        document.getElementById('thinking').style.display = 'none';
+        document.getElementById('thinking').classList.add('hidden');
       }
     }
 
