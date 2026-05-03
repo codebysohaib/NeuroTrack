@@ -13,7 +13,7 @@ CORS(app, resources={
     r"/api/*": {
         "origins": [
             "https://neurotrack-nine.vercel.app",
-            "https://*.vercel.app",   # covers preview deployments
+            "https://neurotrackapp.vercel.app",
             "http://localhost:*",
             "http://127.0.0.1:*",
         ],
