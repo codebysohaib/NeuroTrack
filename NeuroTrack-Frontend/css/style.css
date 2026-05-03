@@ -118,6 +118,14 @@ body {
   width: 100%;
 }
 
+/* Right side of navbar: theme toggle + hamburger */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
