@@ -66,8 +66,11 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
-  min-height: 100vh;
-  /* Prevent horizontal overflow on all pages */
+  /* Use dvh so mobile browser chrome (address bar) doesn't create extra scroll space */
+  min-height: 100dvh;
+  /* Flex column so <main> can grow and fill remaining viewport */
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
   transition: background 0.3s ease;
 }
@@ -81,6 +84,7 @@ body {
 }
 
 .main {
+  flex: 1; /* Stretches to fill all remaining viewport space */
   padding-top: var(--space-lg);
   padding-bottom: var(--space-xl);
 }

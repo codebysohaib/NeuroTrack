@@ -10,11 +10,12 @@
   <style>
     /* Chat page uses its own main — no .main padding */
     .chat-main {
+      flex: 1;              /* fill remaining body flex space */
       display: flex;
       align-items: stretch;
       justify-content: center;
-      /* Fill all remaining viewport height below navbar + auth bar */
-      height: calc(100dvh - 108px);
+      /* Constrain height so chat doesn't overflow body */
+      height: 0;            /* with flex:1 this becomes the actual available height */
       padding: 12px;
       box-sizing: border-box;
     }
@@ -143,9 +144,7 @@
 
     @media (max-width: 768px) {
       .chat-main {
-        /* On mobile: remove padding so chat fills edge to edge */
         padding: 8px;
-        height: calc(100dvh - 104px);
       }
       .chat-messages { padding: 14px 12px; }
       .bubble { max-width: 88%; font-size: 0.9rem; }
@@ -154,7 +153,7 @@
     }
 
     @media (max-width: 480px) {
-      .chat-main { padding: 0; height: calc(100dvh - 100px); }
+      .chat-main { padding: 0; }
       .chat-container { border-radius: 0; }
       .chat-header { border-radius: 0; padding: 11px 14px; }
       .chat-input-area { border-radius: 0; }
