@@ -8,13 +8,23 @@
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
+    /* Chat page uses its own main — no .main padding */
+    .chat-main {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      /* Fill all remaining viewport height below navbar + auth bar */
+      height: calc(100dvh - 108px);
+      padding: 12px;
+      box-sizing: border-box;
+    }
     .chat-container {
       display: flex;
       flex-direction: column;
-      height: calc(100dvh - 120px);
-      min-height: 480px;
-      width: min(780px, 100%);
-      margin: 0 auto;
+      /* Fill the full height of chat-main */
+      height: 100%;
+      width: 100%;
+      max-width: 820px;
     }
     .chat-header {
       padding: 14px 16px;
@@ -132,20 +142,21 @@
     .btn-ghost:hover { background: var(--error-lt); border-color: var(--error); color: var(--error); }
 
     @media (max-width: 768px) {
-      .chat-container {
-        height: calc(100dvh - 110px);
-        width: 100%;
-        border-radius: var(--radius);
+      .chat-main {
+        /* On mobile: remove padding so chat fills edge to edge */
+        padding: 8px;
+        height: calc(100dvh - 104px);
       }
-      .chat-messages { padding: 16px 12px; }
+      .chat-messages { padding: 14px 12px; }
       .bubble { max-width: 88%; font-size: 0.9rem; }
       .quick-chips { gap: 6px; }
       .chip { font-size: 0.75rem; padding: 7px 12px; }
     }
 
     @media (max-width: 480px) {
+      .chat-main { padding: 0; height: calc(100dvh - 100px); }
       .chat-container { border-radius: 0; }
-      .chat-header { border-radius: 0; padding: 12px; }
+      .chat-header { border-radius: 0; padding: 11px 14px; }
       .chat-input-area { border-radius: 0; }
       .bubble { max-width: 92%; padding: 10px 13px; }
     }
@@ -183,7 +194,7 @@
     </div>
   </div>
 
-  <main class="main" style="display: flex; justify-content: center; width: 100%;">
+  <main class="chat-main">
     <div class="chat-container card" style="padding:0">
       <header class="chat-header">
         <div style="display:flex; align-items:center; gap:12px;">

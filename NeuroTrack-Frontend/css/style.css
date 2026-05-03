@@ -81,8 +81,8 @@ body {
 }
 
 .main {
-  padding-top: var(--space-xl);
-  padding-bottom: var(--space-xxl);
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-xl);
 }
 
 .grid {
@@ -506,8 +506,8 @@ input[type="range"] {
   .container { padding: 0 var(--space-md); }
 
   .main {
-    padding-top: var(--space-lg);
-    padding-bottom: var(--space-xl);
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-lg);
   }
 
   /* Navbar */
